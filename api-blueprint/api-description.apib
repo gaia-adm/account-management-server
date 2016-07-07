@@ -49,6 +49,12 @@ A single user.
     + id: 42 (required, string) - ID of the User
 
 ### Retrieve a Single User [GET]
+
++ Request
+    + Headers
+
+            Authorization: Superuser
+
 + Response 200 (application/json; charset=utf-8)
 
         {
@@ -61,3 +67,12 @@ A single user.
                 "richardjplotkin@gmail.com"
             ]
         }
+
++ Request
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}

@@ -6,37 +6,26 @@ const User = require('../models/users');
 const passport = require('passport');
 
 /* GET users listing. */
-// router.route('/')
-//   .get(
-//     passport.authenticate('jwt', { session: false}),
-//     function(req, res) {
-//       User
-//         .fetchAll()
-//         .then(function(users) {
-//           res.json(users);
-//         })
-//   });
-
 router.route('/')
-  .get(function(req, res, next) {
-    passport.authenticate('jwt', function(err, user, info) {
-      if (err) {
-        res.status(401).json({message: 'Unauthorized'});
-        return next(err);
-      }
-      if (!user) {
-        res.status(401).json({message: 'Unauthorized'});
-      }
+  .get(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
+    function(req, res, next) {
       User
-        .fetchAll()
-        .then(function(users) {
-          res.json(users);
-        })
-    })(req, res, next)
+          .fetchAll()
+          .then(function(users) {
+            res.json(users);
+          })
+    }
+  )
+
+  .post(function (req, res, next) {
+
   });
 
 router.route('/:id')
-  .get(function(req, res) {
+  .get(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
+    function(req, res, next) {
     //fetch the user by id
     User
       .where({id: req.params.id})

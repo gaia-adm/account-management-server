@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "pretest": "aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html",
-    "test": "dredd api-blueprint/api-description.apib http://localhost:3000 --hookfiles=./test/dredd-hooks.js"
+    "test": "dredd api-blueprint/api-description.apib http://localhost:3000 --hookfiles=./test/dredd-hooks.js",
+    "doc": "aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html"
   },
   "dependencies": {
     "body-parser": "~1.13.2",
