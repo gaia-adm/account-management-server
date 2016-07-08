@@ -2,11 +2,11 @@ var config = require('config');
 var knex = require('knex')({
   client: 'pg',
   connection: config.get('db.url'),
-  searchPath: 'knex,public'
+  searchPath: 'knex,public',
+  debug: (config.get('db.debug'))
 });
 var bookshelf = require('bookshelf')(knex);
 var cascadeDelete = require('bookshelf-cascade-delete');
 bookshelf.plugin(cascadeDelete.default);
-
 
 module.exports = bookshelf;

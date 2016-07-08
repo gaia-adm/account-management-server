@@ -5,7 +5,7 @@ const router = express.Router();
 const passport = require('passport');
 const Promise = require('bluebird');
 const _ = require('lodash');
-const database = require('../models/database');
+const db = require('../models/database');
 const User = require('../models/users');
 const UserEmail = require('../models/userEmails');
 
@@ -23,28 +23,14 @@ router.route('/')
   )
 
   .post(function (req, res, next) {
-    let params = _.pick(req.body, ['firstName', 'lastName', 'emails']);
-    params.emails = _.map(params.emails, function(email) {
-      return {'email': email};
-    });
-    database.transaction(function(t) {
-      return new User({
-        firstName: params.firstName,
-        lastName: params.lastName
+    User.createUser(req.body)
+      .then(function(user) {
+        res.json(user);
       })
-      .save(null, {transacting: t, method: 'insert'})
-      .tap(function(model) {
-        return Promise.map(params.emails, function(data) {
-          //NOTE: must _explicitly_ set method to insert to get a duplicate key violation
-          return new UserEmail(data).save({'user_id': model.id}, {method: 'insert', transacting: t});
-        });
+      .catch(function(err) {
+        console.error('error!');
+        next(err);
       });
-    }).then(function(user) {
-      res.json(user);
-    }).catch(function(err) {
-      console.error('error!');
-      next(err);
-    });
   });
 
 router.route('/:id')
@@ -55,13 +41,32 @@ router.route('/:id')
     User
       .where({id: req.params.id})
       .fetch({
-        withRelated: ['emails']
+        withRelated: [
+          'emails',
+          {'accounts':
+            function(qb) {
+              qb.column([
+                'account_id',
+                'accounts.name',
+                db.knex.raw('array_agg(roles.id) AS role_ids, array_agg(roles.name) AS role_names')
+              ]);
+              qb.innerJoin('roles','xref_user_account_roles.role_id','roles.id');
+              qb.groupBy('accounts.name','xref_user_account_roles.user_id','xref_user_account_roles.account_id');
+            }
+          }
+        ]
       })
       .then(function(user) {
         //serialize
+        if(!user) {
+          return next(null, false);
+        }
         user = user.serialize({shallow:false});
         user.emails = user.emails.map(obj => obj.email).sort();
         res.json(user);
+      })
+      .catch(function(err) {
+        next(err);
       });
   })
   .put(function(req, res, next) {
@@ -71,7 +76,7 @@ router.route('/:id')
       return {'email': email};
     });
 
-    database.transaction(function(t) {
+    db.transaction(function(t) {
       return new User({
         id: params.id
       })

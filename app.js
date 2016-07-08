@@ -36,14 +36,18 @@ passport.use(new GoogleStrategy({
       .then(function(user) {
         //create the user if s/he does not exist
         if(user === null) {
-          // console.log('no user found', user);
-          new User({
+          console.log('no user found', user);
+          User.createUser({
             firstName: profile.name.givenName,
             lastName: profile.name.familyName,
             email: profile.emails[0].value
-          }).save().then(function(newUser) {
-            return done(null, newUser);
-          });
+          })
+            .then(function(newUser) {
+              return done(null, newUser);
+            })
+            .catch(function(err) {
+              return done(null, false);
+            })
         } else {
           // console.log('user found', user);
           return done(null, user);
