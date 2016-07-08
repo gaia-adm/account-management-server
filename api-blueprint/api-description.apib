@@ -41,6 +41,27 @@ Resources related to users
 
             {"message": "Unauthorized"}
 
+### Create a Single User [POST]
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "firstName": "Dummy",
+                "lastName": "User",
+                "emails": ["dummyuser1@gmail.com", "dummyuser2@gmail.com"]
+            }
+
++ Response 200 (application/json; charset=utf-8)
+
+            {
+                "firstName": "Dummy",
+                "lastName": "User",
+                "id": 1
+            }
+
+
 ## User [/api/users/{id}]
 
 A single user.
@@ -76,3 +97,31 @@ A single user.
 + Response 401 (application/json; charset=utf-8)
 
             {"message": "Unauthorized"}
+
+
+### Update A Single User [PUT]
+Note that a user's new emails are inserted, and existing emails will be updated to the user's id.
+However, no emails will be removed in this update.
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "firstName": "Richard-Update",
+                "lastName": "Plotkin-Update",
+                "emails": ["richard@richardplotkin.com"]
+            }
+
++ Response 200 (application/json; charset=utf-8)
+
+            {
+                "id": 42,
+                "firstName": "Richard-Update",
+                "lastName": "Plotkin-Update"
+            }
+
+### Delete a Single User [DELETE]
++ Response 200 (application/json; charset=utf-8)
+
+            {"message": "User successfully deleted"}

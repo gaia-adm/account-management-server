@@ -8,7 +8,7 @@ exports.up = function(knex, Promise) {
     })
     .createTable('xref_user_emails', function(table) {
       table.integer('user_id').references('id').inTable('users');
-      table.string('email').notNullable();
+      table.string('email').primary();
     })
     .createTable('accounts', function(table) {
       table.integer('id').primary();
