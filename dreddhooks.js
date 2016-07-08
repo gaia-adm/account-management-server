@@ -3,9 +3,9 @@
 const hooks = require('hooks');
 const jwt = require('jsonwebtoken');
 const config = require('config');
-const db = require('../models/database');
-const User = require('../models/users');
-const UserEmail = require('../models/userEmails');
+const db = require('./models/database');
+const User = require('./models/users');
+const UserEmail = require('./models/userEmails');
 const _ = require('lodash');
 
 let responseStash = {};
