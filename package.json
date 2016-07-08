@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "dredd api-blueprint/api-description.apib http://localhost:3000 --hookfiles=./test/dredd-hooks.js",
+    "test": "NODE_ENV=test dredd",
     "doc": "aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html"
   },
   "dependencies": {

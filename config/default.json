@@ -1,4 +1,8 @@
 {
+  "server": {
+    "path": "http://localhost",
+    "port": 3001
+  },
   "secret": "No more secrets.",
   "authentication": {
     "googleStrategy": {
