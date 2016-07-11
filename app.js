@@ -16,6 +16,7 @@ var ExtractJwt = require('passport-jwt').ExtractJwt;
 var routes = require('./routes/index');
 var auth = require('./routes/auth');
 var users = require('./routes/users');
+var accounts = require('./routes/accounts');
 
 var User = require('./models/users');
 
@@ -94,11 +95,20 @@ app.use(passport.initialize());
 app.use('/', routes);
 app.use('/auth', auth);
 app.use('/api/users', users);
+app.use('/api/accounts', accounts);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
+  next(err);
+});
+
+// catch duplicate key as bad data
+app.use(function(err, req, res, next) {
+  if(/duplicate key/.test(err.message)) {
+    err.status = 400;
+  }
   next(err);
 });
 
