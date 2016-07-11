@@ -13,6 +13,7 @@ exports.seed = function(knex, Promise) {
         knex('users').insert({id: 42, firstName: 'Richard', lastName: 'Plotkin'}),
         knex('users').insert({id: 1010, firstName: 'Alexei', lastName: 'Ledenev'}),
         knex('accounts').insert({id:36, name: 'Test Account', description: 'Short Description'}),
+        knex('accounts').insert({id:37, name: 'Another Account', description: 'Another Description'}),
         knex('roles').insert({id:1, name: 'Account Admin'}),
         knex('roles').insert({id:2, name: 'Analyst'}),
         knex('roles').insert({id:3, name: 'Member'})
