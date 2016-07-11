@@ -10,7 +10,7 @@ const _ = require('lodash');
 
 let responseStash = {};
 
-const superuserToken = jwt.sign({id: 42}, config.get('secret'), {expiresIn: '1h'});
+const superuserToken = jwt.sign({id: 42}, config.get('secret'), {expiresIn: '100h'});
 
 const supplyAuthToken = function(authorization) {
   let token;
@@ -27,6 +27,7 @@ const supplyAuthToken = function(authorization) {
 
 //before doing any tests, re-seed the database
 hooks.beforeAll(function(transactions, done) {
+  hooks.log('BEFORE!!!!!!');
   return db.knex.seed.run({
     directory: './test/seeds'
   }).then(function() {
@@ -70,4 +71,14 @@ hooks.after("Users > User > Update A Single User", function(transaction, done) {
     .finally(function() {
       done();
     });
+});
+
+hooks.after("Users > User > Delete a Single User", function(transaction, done) {
+  return new User({
+    id: 42, firstName: 'Richard', lastName: 'Plotkin'
+  })
+    .save()
+    .finally(function() {
+      done();
+    })
 });
