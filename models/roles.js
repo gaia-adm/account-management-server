@@ -8,4 +8,4 @@ var Role = db.Model.extend({
   }
 });
 
-module.exports = Role;
+module.exports = db.model('Role', Role);

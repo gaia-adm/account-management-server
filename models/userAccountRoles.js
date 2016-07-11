@@ -7,14 +7,14 @@ var UserAccountRole = db.Model.extend({
   tableName: 'xref_user_account_roles',
   idAttribute: 'user_id', //this is a lie to make bookshelf work
   user: function() {
-    return this.belongsTo(User);
+    return this.belongsTo('User');
   },
   account: function() {
-    return this.belongsTo(Account);
+    return this.belongsTo('Account');
   },
   role: function() {
-    return this.belongsTo(Role);
+    return this.belongsTo('Role');
   }
 });
 
-module.exports = UserAccountRole;
+module.exports = db.model('UserAccountRole', UserAccountRole);

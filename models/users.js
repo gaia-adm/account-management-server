@@ -10,10 +10,10 @@ const Promise = require('bluebird');
 const User = db.Model.extend({
   tableName: 'users',
   emails: function() {
-    return this.hasMany(UserEmail);
+    return this.hasMany('UserEmail');
   },
   accounts: function() {
-    return this.belongsToMany(Account).through(UserAccountRole);
+    return this.belongsToMany('Account', 'account_id').through('UserAccountRole', 'user_id');
   }
 }, {
   dependents: ['emails', 'accountRoles'],
@@ -36,4 +36,4 @@ const User = db.Model.extend({
   }
 });
 
-module.exports = User;
+module.exports = db.model('User', User);
