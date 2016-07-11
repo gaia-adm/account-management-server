@@ -7,7 +7,7 @@ exports.up = function(knex, Promise) {
       table.boolean('isSuperuser').defaultTo(false);
     })
     .createTable('xref_user_emails', function(table) {
-      table.integer('user_id').references('id').inTable('users');
+      table.integer('user_id').references('id').inTable('users').onDelete('CASCADE');
       table.string('email').primary();
     })
     .createTable('accounts', function(table) {
@@ -22,7 +22,7 @@ exports.up = function(knex, Promise) {
       table.string('name').unique();
     })
     .createTable('xref_user_account_roles', function(table) {
-      table.integer('user_id').references('id').inTable('users');
+      table.integer('user_id').references('id').inTable('users').onDelete('CASCADE');
       table.integer('account_id').references('id').inTable('accounts');
       table.integer('role_id').references('id').inTable('roles');
     });

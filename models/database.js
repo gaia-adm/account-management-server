@@ -6,7 +6,5 @@ var knex = require('knex')({
   debug: (config.get('db.debug'))
 });
 var bookshelf = require('bookshelf')(knex);
-var cascadeDelete = require('bookshelf-cascade-delete');
-bookshelf.plugin(cascadeDelete.default);
 
 module.exports = bookshelf;
