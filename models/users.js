@@ -14,6 +14,9 @@ const User = db.Model.extend({
   },
   accounts: function() {
     return this.belongsToMany('Account', 'account_id').through('UserAccountRole', 'user_id');
+  },
+  accountRoles: function() {
+    return this.hasMany('UserAccountRole');
   }
 }, {
   dependents: ['emails', 'accountRoles'],
@@ -22,6 +25,7 @@ const User = db.Model.extend({
     data.emails = _.map(data.emails, function(email) {
       return {'email': email};
     });
+
     return db.transaction(function(t) {
       return User.forge({
         firstName: data.firstName,

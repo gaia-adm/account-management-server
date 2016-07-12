@@ -241,6 +241,33 @@ The supplied list of users replaces the existing list of users. User ID and Role
 
             {"message": "Account successfully deleted"}
 
+## Account Invitations [/api/accounts/{id}/invitations]
+
+### Create An Invitation [POST]
+
++ Parameters
+    + id: 36 (required, number) - ID of the Account
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "email": richard.plotkin@toptal.com
+                "role_ids": [1,2,3]
+            }
+
++ Response 200 (application/json; charset=utf-8)
+
+            {
+                "id": "12345",
+                "uuid": "123456",
+                "email": "richard.plotkin@toptal.com",
+                "role_ids": [1,2,3],
+                "date_created": "2016-01-01"
+            }
+
+
 ## Account Users [/api/accounts/{id}/users/{userId}]
 
 ### Add a Single User to an Account [POST]

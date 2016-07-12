@@ -3,11 +3,13 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const validator = require('validator');
 const Promise = require('bluebird');
 const _ = require('lodash');
 const db = require('../models/database');
 const Account = require('../models/accounts');
 const UserAccountRole = require('../models/userAccountRoles');
+const AccountInvitations = require('../models/accountInvitations');
 const ERRORS = require('./errors');
 
 const userWithRoles = function(qb) {
@@ -148,5 +150,34 @@ router.route('/:id')
       })
     }
   );
+
+router.route('/:id/invitations')
+  .post(function(req, res, next) {
+    let params = _.pick(req.body, ['email', 'role_ids']);
+    params.id = req.params.id;
+    if(!validator.isEmail(params.email)) {
+      return next(ERRORS.INVITATION_INVALID_EMAIL);
+    }
+    if(!_.isArray(params.role_ids) || params.role_ids.length === 0) {
+      return next(ERRORS.INVITATION_NO_ROLES_PROVIDED);
+    }
+    AccountInvitations
+      .forge({
+        account_id: params.id,
+        email: params.email,
+        invited_role_ids: params.role_ids
+      })
+      .save()
+      .then(function(invitation) {
+        if(!invitation) {
+          return next(null, false);
+        }
+        invitation.fetch();
+        res.json(invitation);
+      })
+      .catch(function(err) {
+        return next(err);
+      })
+  });
 
 module.exports = router;

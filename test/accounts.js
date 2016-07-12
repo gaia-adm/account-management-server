@@ -2,8 +2,7 @@
 
 const config    = require('config');
 const app       = require('../app');
-var request   = require('supertest');
-// const should    = require('should');
+const request   = require('supertest');
 const assert    = require('chai').assert;
 const _         = require('lodash');
 const Account   = require('../models/accounts');

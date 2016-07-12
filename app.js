@@ -9,7 +9,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var passport = require('passport');
-var GoogleStrategy = require('passport-google-oauth20').Strategy;
 var JwtStrategy = require('passport-jwt').Strategy;
 var ExtractJwt = require('passport-jwt').ExtractJwt;
 
@@ -20,45 +19,7 @@ var accounts = require('./routes/accounts');
 
 var User = require('./models/users');
 
-//passport setup
-passport.use(new GoogleStrategy({
-    clientID: config.get('authentication.googleStrategy.clientId'),
-    clientSecret: config.get('authentication.googleStrategy.clientSecret'),
-    callbackURL: config.get('authentication.googleStrategy.callbackURL')
-  },
-  function(accessToken, refreshToken, profile, done) {
-    //find the user
-    User
-      .where({
-        firstName: profile.name.givenName,
-        lastName: profile.name.familyName
-      })
-      .fetch()
-      .then(function(user) {
-        //create the user if s/he does not exist
-        if(user === null) {
-          console.log('no user found', user);
-          User.createUser({
-            firstName: profile.name.givenName,
-            lastName: profile.name.familyName,
-            email: profile.emails[0].value
-          })
-            .then(function(newUser) {
-              return done(null, newUser);
-            })
-            .catch(function(err) {
-              return done(null, false);
-            })
-        } else {
-          // console.log('user found', user);
-          return done(null, user);
-        }
-      })
-      .catch(function() {
-        return done(null, false);
-      });
-  }
-));
+
 
 passport.use(new JwtStrategy({
     jwtFromRequest: ExtractJwt.fromAuthHeader(),
