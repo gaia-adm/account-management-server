@@ -25,14 +25,18 @@ const supplyAuthToken = function(authorization) {
   return token;
 };
 
-//before doing any tests, re-seed the database
-hooks.beforeAll(function(transactions, done) {
-  hooks.log('BEFORE!!!!!!');
+const reseed = function(done) {
   return db.knex.seed.run({
     directory: './test/seeds'
   }).then(function() {
     done();
   })
+};
+
+//before doing any tests, re-seed the database
+hooks.beforeAll(function(transactions, done) {
+  hooks.log('BEFORE!!!!!!');
+  return reseed(done);
 });
 
 hooks.beforeEach(function (transaction) {
@@ -73,12 +77,7 @@ hooks.after("Users > User > Update A Single User", function(transaction, done) {
     });
 });
 
-hooks.after("Users > User > Delete a Single User", function(transaction, done) {
-  return new User({
-    id: 42, firstName: 'Richard', lastName: 'Plotkin'
-  })
-    .save()
-    .finally(function() {
-      done();
-    })
+hooks.before("Accounts > Account > Update A Single Account", function(transaction, done) {
+  hooks.log('before update account');
+  return reseed(done);
 });

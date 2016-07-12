@@ -10,6 +10,17 @@ const Account = require('../models/accounts');
 const UserAccountRole = require('../models/userAccountRoles');
 const ERRORS = require('./errors');
 
+const userWithRoles = function(qb) {
+  qb.column([
+    'users.firstName',
+    'users.lastName',
+    'users.id',
+    db.knex.raw('array_agg(roles.id) AS role_ids, array_agg(roles.name) AS role_names')
+  ]);
+  qb.innerJoin('roles','xref_user_account_roles.role_id','roles.id');
+  qb.groupBy('users.id','users.firstName','users.lastName','xref_user_account_roles.user_id','xref_user_account_roles.account_id');
+};
+
 /* GET accounts listing. */
 router.route('/')
   .get(
@@ -44,7 +55,7 @@ router.route('/:id')
       Account
         .where({id: req.params.id})
         .fetch({
-          withRelated: ['users']
+          withRelated: [{'users':userWithRoles}]
         })
         .then(function(account) {
           //serialize
@@ -108,8 +119,19 @@ router.route('/:id')
             return new UserAccountRole(data).save({'account_id': model.id}, {method: 'insert', require: false, transacting: t});
           });
         });
-      }).then(function(user) {
-        res.json(user);
+      }).then(function(account) {
+        if(!account) {
+          return next(null, false);
+        }
+        account.load([{'users':userWithRoles}]).then(function(account) {
+          if(!account) {
+            return next(null, false);
+          }
+          res.json(account);
+        }).catch(function(err) {
+          next(err);
+        })
+
       }).catch(function(err) {
         next(err);
       });
