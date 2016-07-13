@@ -13,7 +13,7 @@ var JwtStrategy = require('passport-jwt').Strategy;
 var ExtractJwt = require('passport-jwt').ExtractJwt;
 
 var routes = require('./routes/index');
-var auth = require('./routes/auth');
+var auth = require('./routes/auth').router;
 var users = require('./routes/users');
 var accounts = require('./routes/accounts');
 

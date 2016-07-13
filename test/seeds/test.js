@@ -21,7 +21,8 @@ exports.seed = function(knex, Promise) {
         return Promise.all([
           knex('xref_user_emails').insert({user_id:42,email:'richard.plotkin@toptal.com'}),
           knex('xref_user_emails').insert({user_id:42,email:'richardjplotkin@gmail.com'}),
-          knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:2})
+          knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:2}),
+          knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:3})
         ]);
       })
     });
