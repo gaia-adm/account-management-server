@@ -32,21 +32,6 @@ passport.use('google', new GoogleStrategy({
     //get the id by which to find the invite
     let invitationUuid = req.query.state;
 
-    //look up the invite
-    AccountInvitations
-      .where('uuid',invitationUuid)
-      .fetch()
-      .then(function(invitation) {
-        if(!invitation) {
-          return next('error');
-        }
-        let invitedEmail = invitation.get('email');
-      })
-      .catch(function(err) {
-        return next(err);
-      });
-
-
     User
       .where({
         firstName: profile.name.givenName,
@@ -79,7 +64,23 @@ passport.use('google', new GoogleStrategy({
   })
 );
 
+const validateUser      = function(accessToken, refreshToken, profile, next) {
+  let emails = profile.emails.map(function(email) {
+    return email.value;
+  });
+  //TODO: if there are multiple emails in the profile, with different user-ids, merge down to a single user-id
+  let lookupUserId = UserEmail.query().whereIn('email', emails).returning('user_id');
+  let user = lookupUserId.then(function(result) {
+
+    console.info('result',result);
+  }).catch(function(err) {
+    console.error('err', err);
+  });
+  return user;
+};
+
 const validateInvitation =  function(req, accessToken, refreshToken, profile, next) {
+
   //get the id by which to find the invite
   let invitationUuid = req.query.state;
   let invitedEmail, invitedAccount, invitedRoleIDs;
@@ -122,7 +123,6 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
   });
 
   let assignAccountRoles = findOrCreateUser.then(function(user) {
-    console.info('user', user.id, user.get('firstName'));
 
     return db.transaction(function(trx) {
 
@@ -131,8 +131,6 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
         account_id: invitedAccount,
         user_id: user.id
       }).then(function(matches) {
-
-        console.info('matches', matches);
 
         if(matches.length > 0) {
           let roleIDs = matches.map(function(row) {
@@ -160,82 +158,42 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
         return AccountInvitations.where({'uuid':invitationUuid}).save({date_accepted: db.knex.fn.now()},{transacting: trx, require: true, patch: true});
       });
 
-      return acceptInvitation;
+      return acceptInvitation.then(function(results) {
+        if(!results) {
+          return Promise.reject('no results');
+        }
+        return Promise.resolve(user);
+      });
     });
   });
 
-  return assignAccountRoles;
+  return assignAccountRoles
 
-  // accountInvitation
-  //   .then(function(invitation) {
-  //     if(!invitation) {
-  //       return next('error');
-  //     }
-  //     let invitedEmail = invitation.get('email');
-  //     let invitedAccount = invitation.get('account_id');
-  //     let invitedRoleIDs = invitation.get('invited_role_ids');
-  //     console.log('invitation',invitation);
-  //
-  //     //confirm that profile email matches invited email
-  //     console.info('profile emails', profile.emails);
-  //     if(_.find(profile.emails, {value: invitedEmail}) === undefined) {
-  //       return next(ERRORS.INVITATION_UNMATCHING_EMAIL);
-  //     }
-  //
-  //     //find user (if any) who has a matching email
-  //     UserEmail
-  //       .where('email', invitedEmail)
-  //       .fetch()
-  //       .then(function(user) {
-  //         if(!user) {
-  //
-  //           //a user needs to be created using the profile data
-  //           //Once the user is created, the user should be added to the account with the specified roles
-  //           //After all those criteria are met, the invitation should be expired
-  //           db.transaction(function(t) {
-  //             return User
-  //               .forge({
-  //                 firstName: profile.name.givenName,
-  //                 lastName: profile.name.familyName
-  //               })
-  //               .save(null, {transacting: t, method: 'insert'})
-  //               .tap(user =>
-  //                 //NOTE: must _explicitly_ set method to insert to get a duplicate key violation
-  //                 user.related('emails').create({
-  //                   email: invitedEmail
-  //                 }, {method: 'insert', transacting: t})
-  //               )
-  //               .tap(function(user) {
-  //                 console.log('user', user);
-  //                 Promise.map(invitedRoleIDs, roleID => user.related('accountRoles').create({
-  //                   account_id: invitedAccount,
-  //                   role_id   : roleID
-  //                 }, {
-  //                   method     : 'insert',
-  //                   transacting: t
-  //                 })
-  //                   .then(function(accountRole) {
-  //
-  //                   })
-  //                   .catch(function(err) {
-  //                     console.log('err', err);
-  //                   }));
-  //               })
-  //           })
-  //         }
-  //         //a user does *not* need to be created
-  //         //The user should be added to the account with the specified roles
-  //         //After that addition, the invitation should be expired
-  //         console.info('user exists', user);
-  //         return next(null, user);
-  //       })
-  //       .catch(function(err) {
-  //         return next(err);
-  //       })
-  //   })
-  //   .catch(function(err) {
-  //     return next(err);
-  //   });
+};
+
+const validateInvitationCallback = function(req, accessToken, refreshToken, profile, next) {
+  validateInvitation(req, accessToken, refreshToken, profile)
+    .then(function(result) {
+      // console.info('result', result);
+      return next(null, result);
+    })
+    .catch(function(error) {
+      // console.info('error', error);
+      if(_.isString(error)) {
+        var e = new Error(error);
+        e.status = 400;
+        return next(e);
+      }
+      return next(error);
+    });
+};
+
+const resolveUserJWT = function(req, res) {
+  let user = req.user;
+  let token = jwt.sign({id: user.id}, config.get('secret'), {
+    expiresIn: '365d'
+  });
+  res.json({ success: true, token: 'JWT ' + token });
 };
 
 passport.use('google-invitation', new GoogleStrategy({
@@ -243,7 +201,8 @@ passport.use('google-invitation', new GoogleStrategy({
     clientSecret: config.get('authentication.googleStrategy.clientSecret'),
     callbackURL: config.get('authentication.googleStrategy.invitationCallbackURL'),
     passReqToCallback: true
-  },validateInvitation)
+  },
+  validateInvitationCallback)
 );
 
 /* GET users listing. */
@@ -290,15 +249,7 @@ router.get('/google/return/invitation',
     session: false,
     failureRedirect: '/login',
     passReqToCallback: true,
-  }),
-  function(req, res) {
-    let user = req.user;
-    let token = jwt.sign({id: user.id}, config.get('secret'), {
-      expiresIn: '365d'
-    });
-    res.json({ success: true, token: 'JWT ' + token });
-  }
-);
+  }), resolveUserJWT);
 
 
 // router.get('/google/return',
@@ -317,4 +268,5 @@ router.get('/google/return/invitation',
 
 exports.router = router;
 exports.validateInvitation = validateInvitation;
+exports.validateUser = validateUser;
 exports.CONSTANTS = CONSTANTS;
