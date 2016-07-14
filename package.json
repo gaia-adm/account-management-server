@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "NODE_ENV=test dredd; NODE_ENV=test mocha test",
-    "doc": "aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html"
+    "test": "NODE_ENV=test mocha",
+    "doc": "aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html",
+    "dredd": "NODE_ENV=test dredd"
   },
   "dependencies": {
     "bluebird": "^3.4.1",
@@ -31,6 +32,8 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
+    "dredd": "^1.2.0",
+    "mocha": "^2.5.3",
     "nodemon": "^1.9.2",
     "supertest": "^1.2.0"
   }

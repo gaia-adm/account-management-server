@@ -26,16 +26,14 @@ const supplyAuthToken = function(authorization) {
 };
 
 const reseed = function(done) {
-  return db.knex.seed.run({
-    directory: './test/seeds'
-  }).then(function() {
+  return db.knex.seed.run().then(function() {
+    hooks.log('db seeded');
     done();
   })
 };
 
 //before doing any tests, re-seed the database
 hooks.beforeAll(function(transactions, done) {
-  hooks.log('BEFORE!!!!!!');
   return reseed(done);
 });
 
@@ -78,6 +76,15 @@ hooks.after("Users > User > Update A Single User", function(transaction, done) {
 });
 
 hooks.before("Accounts > Account > Update A Single Account", function(transaction, done) {
-  hooks.log('before update account');
   return reseed(done);
+});
+
+hooks.after("Accounts > Account > Delete A Single Account", function(transaction, done) {
+  return reseed(done);
+});
+
+
+/** NOT YET IMPLEMENTED **/
+hooks.before("Accounts > Account Users > Add a Single User to an Account", function(transaction) {
+  transaction.skip = true;
 });

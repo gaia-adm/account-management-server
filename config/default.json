@@ -13,8 +13,10 @@
     }
   },
   "db": {
-    "url": "postgres://localhost:5432/hpe_account_management",
+    "connection": {
+      "database": "hpe_account_management",
+      "user": null
+    },
     "debug": false
-
   }
 }

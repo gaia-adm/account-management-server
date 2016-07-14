@@ -161,23 +161,27 @@ router.route('/:id/invitations')
     if(!_.isArray(params.role_ids) || params.role_ids.length === 0) {
       return next(ERRORS.INVITATION_NO_ROLES_PROVIDED);
     }
-    AccountInvitations
-      .forge({
+
+    let saveAccount = AccountInvitations.forge({
         account_id: params.id,
         email: params.email,
         invited_role_ids: params.role_ids
-      })
-      .save()
-      .then(function(invitation) {
-        if(!invitation) {
-          return next(null, false);
-        }
-        invitation.fetch();
-        res.json(invitation);
-      })
-      .catch(function(err) {
-        return next(err);
-      })
+      }).save();
+
+    let loadInvitation = saveAccount.then(function(invitation) {
+      if(!invitation) return Promise.reject('Invitation not created.');
+      return invitation.refresh();
+    });
+
+    return loadInvitation.then(function(invitation) {
+      if(!invitation) {
+        return next(null, false);
+      }
+      res.json(invitation);
+    }).catch(function(err) {
+      return next(err);
+    })
+
   });
 
 module.exports = router;

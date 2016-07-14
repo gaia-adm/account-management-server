@@ -18,63 +18,23 @@ const _ = require('lodash');
 const CONSTANTS = {
   'INVITATION_NOT_FOUND': 'Invitation not found',
   'INVITATION_ALREADY_ACCEPTED': 'This invitation was already used.',
-  'INVITATION_UNMATCHING_EMAIL': 'Invited email address does not match authenticated email address.'
+  'INVITATION_UNMATCHING_EMAIL': 'Invited email address does not match authenticated email address.',
+  'USER_NOT_FOUND': 'User not found'
 };
 
-//passport setup
-passport.use('google', new GoogleStrategy({
-    clientID: config.get('authentication.googleStrategy.clientId'),
-    clientSecret: config.get('authentication.googleStrategy.clientSecret'),
-    callbackURL: config.get('authentication.googleStrategy.callbackURL'),
-    passReqToCallback: true
-  },
-  function(req, accessToken, refreshToken, profile, next) {
-    //get the id by which to find the invite
-    let invitationUuid = req.query.state;
-
-    User
-      .where({
-        firstName: profile.name.givenName,
-        lastName: profile.name.familyName
-      })
-      .fetch()
-      .then(function(user) {
-        //create the user if s/he does not exist
-        if(user === null) {
-          console.log('no user found', user);
-          User.createUser({
-            firstName: profile.name.givenName,
-            lastName: profile.name.familyName,
-            email: profile.emails[0].value
-          })
-            .then(function(newUser) {
-              return done(null, newUser);
-            })
-            .catch(function(err) {
-              return done(null, false);
-            })
-        } else {
-          // console.log('user found', user);
-          return done(null, user);
-        }
-      })
-      .catch(function() {
-        return done(null, false);
-      });
-  })
-);
-
-const validateUser      = function(accessToken, refreshToken, profile, next) {
+const validateUser      = function(req, accessToken, refreshToken, profile, next) {
   let emails = profile.emails.map(function(email) {
     return email.value;
   });
   //TODO: if there are multiple emails in the profile, with different user-ids, merge down to a single user-id
-  let lookupUserId = UserEmail.query().whereIn('email', emails).returning('user_id');
-  let user = lookupUserId.then(function(result) {
-
-    console.info('result',result);
-  }).catch(function(err) {
-    console.error('err', err);
+  let lookupUserId = UserEmail.query().select('user_id').whereIn('email', emails).groupBy('user_id');
+  let user = lookupUserId.then(function(results) {
+    if(!results || results.length === 0) return Promise.reject(CONSTANTS.USER_NOT_FOUND);
+    if(results.length > 1) {
+      console.error('Emails match multiple user IDs');
+    }
+    let userId = results[0].user_id;
+    return User.where({id: userId}).fetch();
   });
   return user;
 };
@@ -171,8 +131,8 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
 
 };
 
-const validateInvitationCallback = function(req, accessToken, refreshToken, profile, next) {
-  validateInvitation(req, accessToken, refreshToken, profile)
+const validationCallback = function(fn, req, accessToken, refreshToken, profile, next) {
+  fn(req, accessToken, refreshToken, profile, next)
     .then(function(result) {
       // console.info('result', result);
       return next(null, result);
@@ -188,6 +148,14 @@ const validateInvitationCallback = function(req, accessToken, refreshToken, prof
     });
 };
 
+const validateInvitationCallback = function(req, accessToken, refreshToken, profile, next) {
+  return validationCallback(validateInvitation, req, accessToken, refreshToken, profile, next);
+};
+
+const validateUserCallback = function(req, accessToken, refreshToken, profile, next) {
+  return validationCallback(validateUser, req, accessToken, refreshToken, profile, next);
+};
+
 const resolveUserJWT = function(req, res) {
   let user = req.user;
   let token = jwt.sign({id: user.id}, config.get('secret'), {
@@ -200,9 +168,17 @@ passport.use('google-invitation', new GoogleStrategy({
     clientID: config.get('authentication.googleStrategy.clientId'),
     clientSecret: config.get('authentication.googleStrategy.clientSecret'),
     callbackURL: config.get('authentication.googleStrategy.invitationCallbackURL'),
-    passReqToCallback: true
   },
   validateInvitationCallback)
+);
+
+//passport setup
+passport.use('google', new GoogleStrategy({
+    clientID: config.get('authentication.googleStrategy.clientId'),
+    clientSecret: config.get('authentication.googleStrategy.clientSecret'),
+    callbackURL: config.get('authentication.googleStrategy.callbackURL'),
+  },
+  validateUserCallback)
 );
 
 /* GET users listing. */
@@ -210,7 +186,6 @@ router.get('/google',
   passport.authenticate('google', {
     scope: 'profile email',
     login_hint: 'richardjplotkin@gmail.com',
-    state: 'MY_INVITATION_ID',
     response_type: 'token'
   }));
 
@@ -252,19 +227,12 @@ router.get('/google/return/invitation',
   }), resolveUserJWT);
 
 
-// router.get('/google/return',
-//   passport.authenticate('google', {
-//     session: false,
-//     failureRedirect: '/login',
-//     passReqToCallback: true,
-//   }),
-//   function(req, res) {
-//     let user = req.user;
-//     let token = jwt.sign({id: user.id}, config.get('secret'), {
-//       expiresIn: '365d'
-//     });
-//     res.json({ success: true, token: 'JWT ' + token });
-//   });
+router.get('/google/return',
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: '/login',
+    passReqToCallback: true,
+  }), resolveUserJWT);
 
 exports.router = router;
 exports.validateInvitation = validateInvitation;

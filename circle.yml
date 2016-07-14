@@ -1,0 +1,14 @@
+machine:
+  node:
+    version: 4.4.6
+  services:
+    - postgresql
+    - docker
+database:
+  override:
+    - createuser -s -d hpe_account_management_test
+    - createdb hpe_account_management_test
+    - knex migrate:latest --env test
+test:
+  pre:
+    - NODE_ENV=test dredd
