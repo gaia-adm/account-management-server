@@ -1,0 +1,15 @@
+db:
+  build: ./database
+  ports:
+    - "5432"
+myapp:
+  build: .
+  links:
+    - db
+  restart: always
+  environment:
+    - PGHOST=db
+    - PGDATABASE=hpe_account_management
+    - PGUSER=hpe_account_management
+  ports:
+    - "3000"

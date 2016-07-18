@@ -15,7 +15,8 @@
   "db": {
     "connection": {
       "database": "hpe_account_management",
-      "user": null
+      "user": "hpe_account_management",
+      "password": ""
     },
     "debug": false
   }

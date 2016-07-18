@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www",
+    "prestart": "knex migrate:latest",
+    "start": "node ./bin/www",
     "test": "NODE_ENV=test mocha",
     "doc": "aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html",
     "dredd": "NODE_ENV=test dredd"

@@ -3,7 +3,7 @@ var config = require('config');
 module.exports = {
 
   test: {
-    client: 'postgresql',
+    client: 'pg',
     connection: {
       database: 'hpe_account_management_test',
       // user:     'username',
@@ -15,11 +15,11 @@ module.exports = {
   },
 
   development: {
-    client: 'postgresql',
+    client: 'pg',
     connection: {
       database: 'hpe_account_management',
-      // user:     'username',
-      // password: 'password'
+      user:     'hpe_account_management',
+      password: 'hpe_account_management'
     },
     pool: {
       min: 2,
