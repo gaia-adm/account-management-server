@@ -1,15 +1,23 @@
-db:
-  build: ./database
-  ports:
-    - "5432"
-myapp:
-  build: .
-  links:
-    - db
-  restart: always
-  environment:
-    - PGHOST=db
-    - PGDATABASE=hpe_account_management
-    - PGUSER=hpe_account_management
-  ports:
-    - "3000"
+version: '2'
+services:
+  db:
+    build: ./database
+    ports:
+      - "5532:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  express-app:
+    build: .
+    entrypoint: ./bin/wait-for-postgres.sh postgres://hpe_account_management@db/hpe_account_management "npm start"
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+      - PGHOST=db
+      - PGDATABASE=hpe_account_management
+      - PGUSER=hpe_account_management
+    ports:
+      - "3100:3000"
+volumes:
+  pgdata:

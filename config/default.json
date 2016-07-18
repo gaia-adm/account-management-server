@@ -13,11 +13,7 @@
     }
   },
   "db": {
-    "connection": {
-      "database": "hpe_account_management",
-      "user": "hpe_account_management",
-      "password": ""
-    },
+    "connection": "db",
     "debug": false
   }
 }
