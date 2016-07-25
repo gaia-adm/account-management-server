@@ -26,6 +26,7 @@ const userWithRoles = function(qb) {
 /* GET accounts listing. */
 router.route('/')
   .get(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
     function(req, res, next) {
       Account
         .fetchAll()

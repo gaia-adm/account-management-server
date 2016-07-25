@@ -1,28 +1,41 @@
 'use strict';
 
-var config = require('config');
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+const config = require('config');
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const ip = require('ip');
 
-var passport = require('passport');
-var JwtStrategy = require('passport-jwt').Strategy;
-var ExtractJwt = require('passport-jwt').ExtractJwt;
+const passport = require('passport');
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 
-var routes = require('./routes/index');
-var auth = require('./routes/auth').router;
-var users = require('./routes/users');
-var accounts = require('./routes/accounts');
+const routes = require('./routes/index');
+const auth = require('./routes/auth').router;
+const users = require('./routes/users');
+const accounts = require('./routes/accounts');
 
-var User = require('./models/users');
+const User = require('./models/users');
 
-
+ExtractJwt.fromCookie = function() {
+  return function(req) {
+    // console.info('req.cookies', req.cookies);
+    var token = null;
+    if (req && req.cookies)
+    {
+      token = req.cookies['token'];
+    }
+    console.info('my token', token);
+    return token;
+  }
+};
 
 passport.use(new JwtStrategy({
-    jwtFromRequest: ExtractJwt.fromAuthHeader(),
+    jwtFromRequest: ExtractJwt.fromCookie(),
     secretOrKey: config.get('secret'),
     // issuer: 'localhost',
     // audience: 'localhost'
@@ -53,11 +66,16 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
-app.use(function(req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, x-access-token');
-  return next();
-});
+app.use(cors(function(req, callback) {
+  let originRegex = new RegExp('^http://(localhost|'+ip.address()+')');
+  let options = {
+    origin: originRegex,
+    methods: 'GET, POST, PUT, DELETE',
+    credentials: true,
+    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept'
+  };
+  callback(null, options);
+}));
 
 app.use('/', routes);
 app.use('/auth', auth);
