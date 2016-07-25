@@ -1,0 +1,7 @@
+{
+  "db": {
+    "connection": {
+      "database": "hpe_account_management"
+    }
+  }
+}

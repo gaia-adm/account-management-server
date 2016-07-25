@@ -3,7 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-var GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GoogleTokenStrategy = require('passport-google-id-token');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const db = require('../models/database');
@@ -23,6 +24,10 @@ const CONSTANTS = {
 };
 
 const validateUser      = function(req, accessToken, refreshToken, profile, next) {
+  console.info('profile', profile);
+  if(!profile || !profile.emails) {
+    return Promise.reject();
+  }
   let emails = profile.emails.map(function(email) {
     return email.value;
   });
@@ -157,10 +162,13 @@ const validateUserCallback = function(req, accessToken, refreshToken, profile, n
 };
 
 const resolveUserJWT = function(req, res) {
+  // console.info('resolveUserJWT', req, res);
   let user = req.user;
   let token = jwt.sign({id: user.id}, config.get('secret'), {
     expiresIn: '365d'
   });
+
+  res.cookie('token', 'JWT ' + token, { httpOnly: true });
   res.json({ success: true, token: 'JWT ' + token });
 };
 
@@ -179,6 +187,17 @@ passport.use('google', new GoogleStrategy({
     callbackURL: config.get('authentication.googleStrategy.callbackURL'),
   },
   validateUserCallback)
+);
+
+passport.use('google-id-token', new GoogleTokenStrategy({
+    clientID: config.get('authentication.googleStrategy.clientId')
+  },
+  function(parsedToken, googleId, done) {
+    let profile = _.clone(parsedToken.payload);
+    profile.emails = [{value: profile.email}];
+    profile.displayName = profile.name;
+    return validateUserCallback(null, null, null, profile, done);
+  })
 );
 
 /* GET users listing. */
@@ -233,6 +252,13 @@ router.get('/google/return',
     failureRedirect: '/login',
     passReqToCallback: true,
   }), resolveUserJWT);
+
+router.post('/google/token',
+  passport.authenticate('google-id-token', {
+    session: false,
+    passReqToCallback: true
+  }),
+  resolveUserJWT);
 
 exports.router = router;
 exports.validateInvitation = validateInvitation;
