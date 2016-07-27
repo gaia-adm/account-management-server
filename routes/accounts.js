@@ -58,7 +58,7 @@ router.route('/:id')
       Account
         .where({id: req.params.id})
         .fetch({
-          withRelated: [{'users':userWithRoles}]
+          withRelated: [{'users':userWithRoles}, 'invitations']
         })
         .then(function(account) {
           //serialize
@@ -75,7 +75,7 @@ router.route('/:id')
   .put(
     function(req, res, next) {
       //fetch the user by id
-      let params = _.pick(req.body, ['name', 'description', 'users']);
+      let params = _.pick(req.body, ['name', 'description', 'enabled', 'users']);
 
       // only allow updates that lack a user object (and don't update users at all), or provides an array of user objects
       if(params.users && (!_.isArray(params.users) ||  params.users.length === 0)) {
@@ -116,7 +116,8 @@ router.route('/:id')
         })
         .save({
           name        : params.name,
-          description : params.description
+          description : params.description,
+          enabled     : params.enabled
         },{
           transacting: t,
           method: 'update',

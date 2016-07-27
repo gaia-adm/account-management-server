@@ -8,6 +8,9 @@ var Account = db.Model.extend({
   // idAttribute: 'id',
   users: function() {
     return this.belongsToMany('User', 'user_id').through('UserAccountRole', 'account_id');
+  },
+  invitations: function() {
+    return this.hasMany('AccountInvitations');
   }
   // ,
   // userRoles: function() {
