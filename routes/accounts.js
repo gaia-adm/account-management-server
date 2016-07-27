@@ -86,16 +86,28 @@ router.route('/:id')
       // validate the updating user objects
       let err = null;
       params.users = params.users.map(function(user) {
-        if((!user.id && !user.user_id) || !user.role_id) {
+        if((!user.id && !user.user_id) || (!user.role_id && !user.role_ids)) {
           err = ERRORS.ACCOUNT_UPDATE_USER_DATA_VALIDATION;
+        }
+
+        if(user.role_ids) {
+          let userRoles = [];
+          user.role_ids.forEach(function(role_id) {
+            userRoles.push({
+              'user_id': (user.id) ? user.id : user.user_id,
+              'role_id': role_id
+            });
+          });
+          return userRoles;
         }
         return {
           'user_id': (user.id) ? user.id : user.user_id,
           'role_id': user.role_id
         }
       });
-      if(err) next(err);
+      params.users = _.flatten(params.users);
 
+      if(err) next(err);
 
       //In this transaction, we delete all account/user pairs and recreate them, unless params.users is unset
       db.transaction(function(t) {
