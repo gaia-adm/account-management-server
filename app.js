@@ -18,6 +18,7 @@ const routes = require('./routes/index');
 const auth = require('./routes/auth').router;
 const users = require('./routes/users');
 const accounts = require('./routes/accounts');
+const invitations = require('./routes/invitations');
 
 const User = require('./models/users');
 
@@ -81,6 +82,7 @@ app.use('/', routes);
 app.use('/auth', auth);
 app.use('/api/users', users);
 app.use('/api/accounts', accounts);
+app.use('/api/invitations', invitations);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
