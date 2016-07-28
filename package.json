@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "devstart": "nodemon ./bin/www",
+    "dev-server": "nodemon ./bin/www",
     "app-server": "webpack-dev-server --history-api-fallback --inline --progress",
     "app-build": "rimraf dist && webpack --bail --progress --profile",
     "test": "NODE_ENV=test mocha",
