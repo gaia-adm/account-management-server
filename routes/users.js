@@ -4,10 +4,12 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const Promise = require('bluebird');
+const validator = require('validator');
 const _ = require('lodash');
 const db = require('../models/database');
 const User = require('../models/users');
 const UserEmail = require('../models/userEmails');
+const ERRORS = require('./errors');
 
 /* GET users listing. */
 router.route('/')
@@ -42,7 +44,17 @@ router.route('/')
   )
 
   .post(function (req, res, next) {
-    User.createUser(req.body)
+    let params = _.pick(req.body, ['firstName', 'lastName', 'emails']);
+    let hasErrors = false;
+    params.emails.forEach(function(email) {
+      if(!validator.isEmail(email)) {
+        hasErrors = true;
+        return next(ERRORS.INVITATION_INVALID_EMAIL);
+      }
+    });
+    if(hasErrors) return;
+
+    User.createUser(params)
       .then(function(user) {
         res.json(user);
       })
