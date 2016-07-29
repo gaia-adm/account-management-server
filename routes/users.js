@@ -15,8 +15,27 @@ router.route('/')
     passport.authenticate('jwt', { failWithError: true, session: false }),
     function(req, res, next) {
       User
-          .fetchAll()
+          .fetchAll({
+            withRelated: [
+              {'emails':
+                function(qb) {
+                  qb.column([
+                    'user_id',
+                    db.knex.raw('array_agg(email) AS emails')
+                  ]);
+                  qb.innerJoin('users','xref_user_emails.user_id','users.id');
+                  qb.groupBy('user_id');
+                  qb.return('emails');
+
+                }
+              }
+            ]
+          })
           .then(function(users) {
+            users = users.serialize().map(function(user) {
+              user.emails = (user.emails.length > 0) ? user.emails[0].emails : [];
+              return user;
+            });
             res.json(users);
           })
     }
