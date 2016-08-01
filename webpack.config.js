@@ -7,6 +7,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ngAnnotatePlugin = require('ng-annotate-webpack-plugin');
+// var AngularInjectorPlugin = require('webpack-angular-injector-plugin');
 
 /**
  * Env
@@ -86,11 +87,8 @@ module.exports = function makeWebpackConfig () {
       // Transpile .js files using babel-loader
       // Compiles ES6 and ES7 into ES5 code
       test: /\.js$/,
-      loader: 'babel',
-      exclude: /node_modules/,
-      query: {
-        presets: ['es2015']
-      }
+      loaders: ['ng-annotate', 'babel?presets[]=es2015'],
+      exclude: /node_modules/
     }, {
       // CSS LOADER
       // Reference: https://github.com/webpack/css-loader
@@ -173,9 +171,19 @@ module.exports = function makeWebpackConfig () {
     )
   }
 
+  config.plugins.push(
+
+    new ngAnnotatePlugin({
+      add: true,
+      // other ng-annotate options here
+    })
+
+  );
+
   // Add build specific plugins
   if (isProd) {
     config.plugins.push(
+
       // Reference: http://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
       // Only emit files when there are no errors
       new webpack.NoErrorsPlugin(),
@@ -186,18 +194,22 @@ module.exports = function makeWebpackConfig () {
 
       // Reference: http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
       // Minify all javascript, switch loaders to minimizing mode
-      new webpack.optimize.UglifyJsPlugin(),
+      // new webpack.optimize.UglifyJsPlugin({
+      //   minimize: true,
+      //   sourceMap: true,
+      //   compress: {
+      //     drop_console: true
+      //   },
+      //   mangle: {
+      //     except: ['$super', '$', '_', 'exports', 'require', '$q']
+      //   }
+      // }),
 
       // Copy assets from the public folder
       // Reference: https://github.com/kevlened/copy-webpack-plugin
       new CopyWebpackPlugin([{
         from: __dirname + '/client/public'
-      }]),
-
-      new ngAnnotatePlugin({
-        add: true,
-        // other ng-annotate options here
-      })
+      }])
     )
   }
 
