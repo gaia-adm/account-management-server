@@ -1,0 +1,20 @@
+var express = require('express');
+var path = require('path');
+var config = require('config');
+
+var app = express();
+
+var isProduction = process.env.NODE_ENV === 'production';
+var port = isProduction ? config.get('client.port') : 8080;
+var publicPath = path.resolve(__dirname, '../client/dist');
+
+// We point to our static assets
+app.use(express.static(publicPath));
+app.get('*', function response(req, res) {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
+
+// And run the server
+app.listen(port, function () {
+  console.log('Server running on port ' + port);
+});

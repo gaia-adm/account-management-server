@@ -19,5 +19,11 @@ services:
       - PGUSER=hpe_account_management
     ports:
       - "3100:3000"
+  client:
+    build: .
+    entrypoint: "node ./bin/client"
+    ports:
+      - "8081:8080"
+
 volumes:
   pgdata:
