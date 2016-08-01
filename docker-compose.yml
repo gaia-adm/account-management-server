@@ -18,10 +18,13 @@ services:
       - PGDATABASE=hpe_account_management
       - PGUSER=hpe_account_management
     ports:
-      - "3100:3000"
+      - "3000:3000"
   client:
     build: .
     entrypoint: "node ./bin/client"
+    links:
+      - express-app
+      - express-app:server
     ports:
       - "8081:8080"
 
