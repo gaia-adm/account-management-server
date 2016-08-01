@@ -13,10 +13,11 @@ let responseStash = {};
 const superuserToken = jwt.sign({id: 42}, config.get('secret'), {expiresIn: '100h'});
 
 const supplyAuthToken = function(authorization) {
+  // hooks.log('getting token for ' + authorization);
   let token;
   switch(authorization) {
     case 'Superuser':
-      token = 'JWT ' + superuserToken;
+      token = superuserToken;
       break;
     default:
       token = 'NONE';
@@ -37,11 +38,37 @@ hooks.beforeAll(function(transactions, done) {
   return reseed(done);
 });
 
+hooks.beforeEach(function(transaction, done) {
+  var name = transaction.name;
+  if(name.match(/Accounts > Account > Update A Single Account/) ||
+    name.match(/Accounts > Account > List All Accounts/)) {
+    return reseed(done);
+  } else {
+    return done();
+  }
+});
+
+hooks.afterEach(function(transaction, done) {
+  var name = transaction.name;
+  if(name.match(/Users > User > Delete a Single User/) ||
+    name.match(/Accounts > Account > Delete A Single Account/)) {
+    return reseed(done);
+  } else {
+    return done();
+  }
+});
+
 hooks.beforeEach(function (transaction) {
+
+  hooks.log(typeof(transaction.request.headers));
+  hooks.log(transaction.request.headers.Authorization);
+
   if(typeof(transaction.request.headers) === 'object' &&
     transaction.request.headers.Authorization !== undefined) {
-    transaction.request.headers.Authorization = supplyAuthToken(transaction.request.headers.Authorization);
+    transaction.request['headers']['Cookie'] = "token=" + supplyAuthToken(transaction.request.headers.Authorization);
+    delete(transaction.request['headers']['Authorization']);
   }
+
 });
 
 //Before creating this user, remove any matching emails
@@ -74,15 +101,6 @@ hooks.after("Users > User > Update A Single User", function(transaction, done) {
       done();
     });
 });
-
-hooks.before("Accounts > Account > Update A Single Account", function(transaction, done) {
-  return reseed(done);
-});
-
-hooks.after("Accounts > Account > Delete A Single Account", function(transaction, done) {
-  return reseed(done);
-});
-
 
 /** NOT YET IMPLEMENTED **/
 hooks.before("Accounts > Account Users > Add a Single User to an Account", function(transaction) {

@@ -45,6 +45,10 @@ Resources related to users
 
 + Request (application/json)
 
+    + Headers
+
+            Authorization: Superuser
+
     + Body
 
             {
@@ -60,6 +64,15 @@ Resources related to users
                 "lastName": "User",
                 "id": 1
             }
+
++ Request
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
 
 
 ## User [/api/users/{id}]
@@ -113,6 +126,10 @@ However, no emails will be removed in this update.
 
 + Request (application/json)
 
+    + Headers
+
+            Authorization: Superuser
+
     + Body
 
             {
@@ -129,10 +146,37 @@ However, no emails will be removed in this update.
                 "lastName": "Plotkin-Update"
             }
 
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
+
 ### Delete a Single User [DELETE]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Superuser
+
 + Response 200 (application/json; charset=utf-8)
 
             {"message": "User successfully deleted"}
+
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
 
 
 # Group Accounts
@@ -141,6 +185,12 @@ Resources related to accounts
 ## Account Collection [/api/accounts]
 
 ### List All Accounts [GET]
+
++ Request
+
+    + Headers
+
+            Authorization: Superuser
 
 + Response 200 (application/json; charset=utf-8)
 
@@ -157,9 +207,23 @@ Resources related to accounts
             }
         ]
 
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
+
 ### Create a Single Account [POST]
 
 + Request (application/json)
+
+    + Headers
+
+            Authorization: Superuser
 
     + Body
 
@@ -176,6 +240,16 @@ Resources related to accounts
                 "id": 100
             }
 
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
+
 ## Account [/api/accounts/{id}]
 
 A single account.
@@ -184,6 +258,11 @@ A single account.
     + id: 36 (required, string) - ID of the Account
 
 ### Retrieve a Single Account [GET]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Superuser
 
 + Response 200 (application/json; charset=utf-8)
 
@@ -202,10 +281,24 @@ A single account.
             ]
         }
 
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
+
 ### Update A Single Account [PUT]
 The supplied list of users replaces the existing list of users. User ID and Role ID must be supplied.
 
 + Request (application/json)
+
+    + Headers
+
+                Authorization: Superuser
 
     + Body
 
@@ -235,11 +328,36 @@ The supplied list of users replaces the existing list of users. User ID and Role
                 ]
             }
 
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
+
 ### Delete A Single Account [DELETE]
++ Request (application/json)
+
+    + Headers
+
+                Authorization: Superuser
 
 + Response 200 (application/json; charset=utf-8)
 
             {"message": "Account successfully deleted"}
+
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
 
 ## Account Invitations [/api/accounts/{id}/invitations]
 
@@ -249,6 +367,10 @@ The supplied list of users replaces the existing list of users. User ID and Role
     + id: 36 (required, number) - ID of the Account
 
 + Request (application/json)
+
+    + Headers
+
+                Authorization: Superuser
 
     + Body
 
@@ -267,13 +389,39 @@ The supplied list of users replaces the existing list of users. User ID and Role
                 "date_invited": "2016-01-01"
             }
 
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
+
 ## Account Invitations [/api/invitations/{uuid}]
 
 ### Revoke An Invitation [DELETE]
 
++ Request (application/json)
+
+    + Headers
+
+                Authorization: Superuser
+
 + Response 200 (application/json; charset=utf-8)
 
             { "message": "Invitation successfully revoked."}
+
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
 
 ## Account Users [/api/accounts/{id}/users/{userId}]
 

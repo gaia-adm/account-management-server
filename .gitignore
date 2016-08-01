@@ -50,3 +50,4 @@ app/jspm_packages
 npm-debug.log
 .idea
 /client/dist
+/reports

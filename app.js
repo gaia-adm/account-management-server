@@ -30,7 +30,7 @@ ExtractJwt.fromCookie = function() {
     {
       token = req.cookies['token'];
     }
-    console.info('my token', token);
+    // console.info('my token', token);
     return token;
   }
 };
@@ -41,15 +41,17 @@ passport.use(new JwtStrategy({
     // issuer: 'localhost',
     // audience: 'localhost'
   }, function(jwt_payload, done) {
-    console.info('jwt', jwt_payload);
+    // console.info('jwt', jwt_payload);
     User
       .where({id: jwt_payload.id})
       .fetch()
       .then(function(user) {
-      done(null, user);
-    }).catch(function(err) {
-      done(err, null);
-    })
+        // console.info('user authenticated', user);
+        done(null, user);
+      }).catch(function(err) {
+        // console.info('jwt auth error', err);
+        done(err, null);
+      })
   }));
 
 var app = express();

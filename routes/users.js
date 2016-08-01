@@ -43,26 +43,30 @@ router.route('/')
     }
   )
 
-  .post(function (req, res, next) {
-    let params = _.pick(req.body, ['firstName', 'lastName', 'emails']);
-    let hasErrors = false;
-    params.emails.forEach(function(email) {
-      if(!validator.isEmail(email)) {
-        hasErrors = true;
-        return next(ERRORS.INVITATION_INVALID_EMAIL);
-      }
-    });
-    if(hasErrors) return;
-
-    User.createUser(params)
-      .then(function(user) {
-        res.json(user);
-      })
-      .catch(function(err) {
-        console.error('error!');
-        next(err);
+  /* Add a user */
+  .post(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
+    function (req, res, next) {
+      let params = _.pick(req.body, ['firstName', 'lastName', 'emails']);
+      let hasErrors = false;
+      params.emails.forEach(function(email) {
+        if(!validator.isEmail(email)) {
+          hasErrors = true;
+          return next(ERRORS.INVITATION_INVALID_EMAIL);
+        }
       });
-  });
+      if(hasErrors) return;
+
+      User.createUser(params)
+        .then(function(user) {
+          res.json(user);
+        })
+        .catch(function(err) {
+          console.error('error!');
+          next(err);
+        });
+    }
+  );
 
 router.route('/:id')
   .get(
@@ -100,49 +104,55 @@ router.route('/:id')
         next(err);
       });
   })
-  .put(function(req, res, next) {
-    let params = _.pick(req.body, ['firstName', 'lastName', 'emails']);
-    params.id = req.params.id;
-    params.emails = _.map(params.emails, function(email) {
-      return {'email': email};
-    });
+  .put(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
+    function(req, res, next) {
+      let params = _.pick(req.body, ['firstName', 'lastName', 'emails']);
+      params.id = req.params.id;
+      params.emails = _.map(params.emails, function(email) {
+        return {'email': email};
+      });
 
-    db.transaction(function(t) {
-      return new User({
-        id: params.id
-      })
-        .save({
-          firstName: params.firstName,
-          lastName : params.lastName
-        },{
-          transacting: t,
-          method: 'update',
-          require: true
+      db.transaction(function(t) {
+        return new User({
+          id: params.id
         })
-        .tap(function(model) {
-          return Promise.map(params.emails, function(data) {
-            //NOTE: must _not_ explicitly set method, because we're okay with an insert or an update
-            // we are *not* removing emails on this update
-            return new UserEmail(data).save({'user_id': model.id}, {require: false, transacting: t});
+          .save({
+            firstName: params.firstName,
+            lastName : params.lastName
+          },{
+            transacting: t,
+            method: 'update',
+            require: true
+          })
+          .tap(function(model) {
+            return Promise.map(params.emails, function(data) {
+              //NOTE: must _not_ explicitly set method, because we're okay with an insert or an update
+              // we are *not* removing emails on this update
+              return new UserEmail(data).save({'user_id': model.id}, {require: false, transacting: t});
+            });
           });
-        });
-    }).then(function(user) {
-      res.json(user);
-    }).catch(function(err) {
-      console.error('error!');
-      next(err);
-    });
-  })
-
-  .delete(function(req, res, next) {
-    return User
-      .where({id: req.params.id})
-      .destroy()
-      .then(function(user) {
-        res.json({'message': 'User successfully deleted'});
+      }).then(function(user) {
+        res.json(user);
       }).catch(function(err) {
+        console.error('error!');
         next(err);
-      })
-  });
+      });
+    }
+  )
+
+  .delete(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
+    function(req, res, next) {
+      return User
+        .where({id: req.params.id})
+        .destroy()
+        .then(function(user) {
+          res.json({'message': 'User successfully deleted'});
+        }).catch(function(err) {
+          next(err);
+        })
+    }
+  );
 
 module.exports = router;

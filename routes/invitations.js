@@ -12,15 +12,17 @@ const ERRORS = require('./errors');
 
 /* Single Invitation */
 router.route('/:uuid')
-  .delete(function(req, res, next) {
-    return AccountInvitations
-      .where({uuid: req.params.uuid})
-      .destroy()
-      .then(function(user) {
-        res.json({'message': 'Invitation successfully revoked'});
-      }).catch(function(err) {
-        next(err);
-      })
+  .delete(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
+    function(req, res, next) {
+      return AccountInvitations
+        .where({uuid: req.params.uuid})
+        .destroy()
+        .then(function(user) {
+          res.json({'message': 'Invitation successfully revoked'});
+        }).catch(function(err) {
+          next(err);
+        })
     }
   );
 

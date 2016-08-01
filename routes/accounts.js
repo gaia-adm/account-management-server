@@ -35,7 +35,9 @@ router.route('/')
         })
     }
   )
-  .post(function (req, res, next) {
+  .post(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
+    function (req, res, next) {
     let data = _.pick(req.body, ['name', 'description']);
     Account.forge({
       name: data.name,
@@ -53,6 +55,7 @@ router.route('/')
 /* Single Account */
 router.route('/:id')
   .get(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
     function(req, res, next) {
       //fetch the user by id
       Account
@@ -73,6 +76,7 @@ router.route('/:id')
         });
     })
   .put(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
     function(req, res, next) {
       //fetch the user by id
       let params = _.pick(req.body, ['name', 'description', 'enabled', 'users']);
@@ -153,7 +157,9 @@ router.route('/:id')
       });
     }
   )
-  .delete(function(req, res, next) {
+  .delete(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
+    function(req, res, next) {
     return Account
       .where({id: req.params.id})
       .destroy()
@@ -166,7 +172,9 @@ router.route('/:id')
   );
 
 router.route('/:id/invitations')
-  .post(function(req, res, next) {
+  .post(
+    passport.authenticate('jwt', { failWithError: true, session: false }),
+    function(req, res, next) {
     let params = _.pick(req.body, ['email', 'role_ids']);
     params.id = req.params.id;
     if(!validator.isEmail(params.email)) {
