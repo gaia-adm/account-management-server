@@ -1,0 +1,6 @@
+{
+  "db": {
+    "connection": "db",
+    "debug": false
+  }
+}

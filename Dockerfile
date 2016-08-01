@@ -9,6 +9,8 @@ ADD package.json /tmp/package.json
 RUN cd /tmp && npm install
 RUN cp -a /tmp/node_modules /usr/src/app/
 
+ARG NODE=production
+ENV NODE_ENV ${NODE}
 
 # Bundle app source
 ADD . /usr/src/app

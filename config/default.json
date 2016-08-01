@@ -1,4 +1,7 @@
 {
+  "client": {
+    "port": 8080
+  },
   "server": {
     "path": "http://localhost",
     "port": 3000
