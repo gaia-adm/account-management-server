@@ -2,6 +2,5 @@
 .gitignore
 README.md
 Dockerfile
-api-blueprint
 _notes
 **/Dockerfile
