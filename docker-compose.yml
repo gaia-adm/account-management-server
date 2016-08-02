@@ -1,17 +1,31 @@
 version: '2'
 services:
+  # database
   db:
-    build: ./database
+    build:
+      context: ./database
+      args:
+        - https_proxy
+        - http_proxy
+        - no_proxy
     ports:
       - "5532:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - account-net
+
+  # backend server
   express-app:
-    build: .
-    entrypoint: ./bin/wait-for-postgres.sh postgres://hpe_account_management@db/hpe_account_management "npm start"
+    build:
+      context: .
+      args:
+        - https_proxy
+        - http_proxy
+        - no_proxy
+    networks:
+      - account-net
     depends_on:
-      - db
-    links:
       - db
     environment:
       - PGHOST=db
@@ -19,14 +33,24 @@ services:
       - PGUSER=hpe_account_management
     ports:
       - "3000:3000"
+    entrypoint: ["./bin/wait-for-postgres.sh", "postgres://hpe_account_management@db/hpe_account_management", "npm start"]
+
+  # client app
   client:
-    build: .
-    entrypoint: "node ./bin/client"
-    links:
-      - express-app
-      - express-app:server
+    build:
+      context: .
+      args:
+        - https_proxy
+        - http_proxy
+        - no_proxy
+    networks:
+      - account-net
     ports:
       - "8080:8080"
+    entrypoint: ["node", "./bin/client"]
 
 volumes:
   pgdata:
+
+networks:
+    account-net:
