@@ -5,8 +5,11 @@ const app       = require('../app');
 const request   = require('supertest');
 const assert    = require('chai').assert;
 const _         = require('lodash');
+const jwt       = require('jsonwebtoken');
 const Account   = require('../models/accounts');
 const ROUTE_ERRORS = require('../routes/errors');
+
+const token = jwt.sign({id: 42}, config.get('secret'), {expiresIn: '100h'});
 
 describe('Error conditions on /accounts', function() {
 
@@ -26,11 +29,13 @@ describe('Error conditions on /accounts', function() {
     it('should fail with a duplicate account name', function(done) {
       request(app)
         .post('/api/accounts')
+        .set('Cookie', 'token='+token)
         .send(accountData)
         .expect(200)
         .end(function(err, res) {
           request(app)
             .post('/api/accounts')
+            .set('Cookie', 'token='+token)
             .send(accountData)
             .expect(400)
             .end(done);
@@ -44,6 +49,7 @@ describe('Error conditions on /accounts', function() {
       data.users = {};
       request(app)
         .put('/api/accounts/37')
+        .set('Cookie', 'token='+token)
         .send(data)
         .expect(ROUTE_ERRORS.ACCOUNT_UPDATE_REQUIRES_USERS.status)
         .end(function(err, res) {
@@ -56,6 +62,7 @@ describe('Error conditions on /accounts', function() {
       data.users = [];
       request(app)
         .put('/api/accounts/37')
+        .set('Cookie', 'token='+token)
         .send(data)
         .expect(ROUTE_ERRORS.ACCOUNT_UPDATE_REQUIRES_USERS.status)
         .end(function(err, res) {

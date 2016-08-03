@@ -7,6 +7,7 @@
     "dev-server": "nodemon ./bin/www",
     "app-server": "webpack-dev-server --history-api-fallback --inline --progress",
     "build": "rimraf dist && webpack --bail --progress --profile",
+    "pretest": "knex seed:run --env=test",
     "test": "NODE_ENV=test mocha",
     "doc": "aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html",
     "dredd": "NODE_ENV=test dredd"
