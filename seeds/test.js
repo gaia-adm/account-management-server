@@ -10,7 +10,7 @@ exports.seed = function(knex, Promise) {
     .then(function () {
       return Promise.all([
         // Inserts seed entries
-        knex('users').insert({id: 42, firstName: 'Richard', lastName: 'Plotkin'}),
+        knex('users').insert({id: 42, firstName: 'Richard', lastName: 'Plotkin', isSuperuser: true}),
         knex('users').insert({id: 1010, firstName: 'Alexei', lastName: 'Ledenev'}),
         knex('accounts').insert({id:36, name: 'Test Account', description: 'Short Description'}),
         knex('accounts').insert({id:37, name: 'Another Account', description: 'Another Description'}),

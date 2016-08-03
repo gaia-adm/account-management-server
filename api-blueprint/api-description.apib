@@ -31,6 +31,15 @@ Resources related to users
                 "isSuperuser": false
             }
         ]
+
++ Request
+    + Headers
+
+            Authorization: User
+
++ Response 403 (application/json; charset=utf-8)
+
+            {"message": "Forbidden"}
         
 + Request
     + Headers
@@ -68,12 +77,145 @@ Resources related to users
 + Request
     + Headers
 
+            Authorization: User
+
++ Response 403 (application/json; charset=utf-8)
+
+            {"message": "Forbidden"}
+
++ Request
+    + Headers
+
             Authorization: None
 
 + Response 401 (application/json; charset=utf-8)
 
             {"message": "Unauthorized"}
 
+
+## User [/api/users/self]
+
+Yourself.
+
+### Retrieve Yourself [GET]
+
++ Request
+    + Headers
+
+            Authorization: Superuser
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "id": 42,
+            "firstName": "Richard",
+            "lastName": "Plotkin",
+            "isSuperuser": false,
+            "emails": [
+                "richard.plotkin@toptal.com",
+                "richardjplotkin@gmail.com"
+            ],
+            "accounts": [
+                {
+                    "account_id": 36,
+                    "name": "Test Account",
+                    "role_ids": [2],
+                    "role_names": ["Analyst"]
+                }
+             ]
+        }
+
++ Request
+    + Headers
+
+            Authorization: User
+
++ Response 200 (application/json; charset=utf-8)
+
+        {
+            "id": 1010,
+            "firstName": "Richard",
+            "lastName": "Plotkin",
+            "isSuperuser": false,
+            "emails": [
+                "richard.plotkin@toptal.com",
+                "richardjplotkin@gmail.com"
+            ],
+            "accounts": [
+                {
+                    "account_id": 36,
+                    "name": "Test Account",
+                    "role_ids": [2],
+                    "role_names": ["Analyst"]
+                }
+             ]
+        }
+
++ Request
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
+
+### Update Self [PUT]
+No emails will be removed in this update.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Superuser
+
+    + Body
+
+            {
+                "firstName": "Richard-Update",
+                "lastName": "Plotkin-Update",
+                "emails": ["richard@richardplotkin.com"]
+            }
+
++ Response 200 (application/json; charset=utf-8)
+
+            {
+                "id": 42,
+                "firstName": "Richard-Update",
+                "lastName": "Plotkin-Update"
+            }
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: User
+
+    + Body
+
+            {
+                "firstName": "Alexei-Update",
+                "lastName": "Ledenev-Update",
+                "emails": ["alexei@hp.com"]
+            }
+
++ Response 200 (application/json; charset=utf-8)
+
+            {
+                "id": 1010,
+                "firstName": "Alexei-Update",
+                "lastName": "Ledenev-Update"
+            }
+
++ Request
+
+    + Headers
+
+            Authorization: None
+
++ Response 401 (application/json; charset=utf-8)
+
+            {"message": "Unauthorized"}
 
 ## User [/api/users/{id}]
 
@@ -113,6 +255,15 @@ A single user.
 + Request
     + Headers
 
+            Authorization: User
+
++ Response 403 (application/json; charset=utf-8)
+
+            {"message": "Forbidden"}
+
++ Request
+    + Headers
+
             Authorization: None
 
 + Response 401 (application/json; charset=utf-8)
@@ -147,6 +298,15 @@ However, no emails will be removed in this update.
             }
 
 + Request
+    + Headers
+
+            Authorization: User
+
++ Response 403 (application/json; charset=utf-8)
+
+            {"message": "Forbidden"}
+
++ Request
 
     + Headers
 
@@ -167,6 +327,15 @@ However, no emails will be removed in this update.
 + Response 200 (application/json; charset=utf-8)
 
             {"message": "User successfully deleted"}
+
++ Request
+    + Headers
+
+            Authorization: User
+
++ Response 403 (application/json; charset=utf-8)
+
+            {"message": "Forbidden"}
 
 + Request
 

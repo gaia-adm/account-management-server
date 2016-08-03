@@ -13,5 +13,6 @@ module.exports = {
     'INVITATION_INVALID_EMAIL': makeError('Invalid email address.', 400),
     'INVITATION_NO_ROLES_PROVIDED': makeError('Invitation requires an array of role_ids.', 400),
     'INVITATION_DOES_NOT_EXIST': makeError('Invitation does not exist.', 400),
-    'INVITATION_UNMATCHING_EMAIL': makeError('Invited email address is not validated with this authorization.', 400)
+    'INVITATION_UNMATCHING_EMAIL': makeError('Invited email address is not validated with this authorization.', 400),
+    'NOT_AUTHORIZED': makeError('You are not allowed to access this resource.', 403)
 };

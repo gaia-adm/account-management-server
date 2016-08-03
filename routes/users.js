@@ -11,10 +11,30 @@ const User = require('../models/users');
 const UserEmail = require('../models/userEmails');
 const ERRORS = require('./errors');
 
+const isSuperuser = function(req, res, next) {
+  if(!req.userIs('superuser')) {
+    return next(ERRORS.NOT_AUTHORIZED);
+  }
+  next();
+};
+const convertSelfToId = function(req, res, next) {
+  if(req.params.id === 'self') {
+    req.params.id = req.user.id;
+  }
+  next();
+};
+const isSuperuserOrSelf = function(req, res, next) {
+  if(!req.userIs('superuser') && !req.userIs('self')) {
+    return next(ERRORS.NOT_AUTHORIZED);
+  }
+  next();
+};
+
 /* GET users listing. */
 router.route('/')
   .get(
     passport.authenticate('jwt', { failWithError: true, session: false }),
+    isSuperuser,
     function(req, res, next) {
       User
           .fetchAll({
@@ -46,6 +66,7 @@ router.route('/')
   /* Add a user */
   .post(
     passport.authenticate('jwt', { failWithError: true, session: false }),
+    isSuperuser,
     function (req, res, next) {
       let params = _.pick(req.body, ['firstName', 'lastName', 'emails']);
       let hasErrors = false;
@@ -71,6 +92,8 @@ router.route('/')
 router.route('/:id')
   .get(
     passport.authenticate('jwt', { failWithError: true, session: false }),
+    convertSelfToId,
+    isSuperuserOrSelf,
     function(req, res, next) {
     //fetch the user by id
     User
@@ -106,6 +129,8 @@ router.route('/:id')
   })
   .put(
     passport.authenticate('jwt', { failWithError: true, session: false }),
+    convertSelfToId,
+    isSuperuserOrSelf,
     function(req, res, next) {
       let params = _.pick(req.body, ['firstName', 'lastName', 'emails']);
       params.id = req.params.id;
@@ -133,6 +158,7 @@ router.route('/:id')
             });
           });
       }).then(function(user) {
+        // console.info("USER", user);
         res.json(user);
       }).catch(function(err) {
         console.error('error!');
@@ -143,6 +169,7 @@ router.route('/:id')
 
   .delete(
     passport.authenticate('jwt', { failWithError: true, session: false }),
+    isSuperuser,
     function(req, res, next) {
       return User
         .where({id: req.params.id})

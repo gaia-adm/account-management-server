@@ -13,6 +13,7 @@ const ip = require('ip');
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
+const roles = require('./middleware/roles');
 
 const routes = require('./routes/index');
 const auth = require('./routes/auth').router;
@@ -44,10 +45,14 @@ passport.use(new JwtStrategy({
     // console.info('jwt', jwt_payload);
     User
       .where({id: jwt_payload.id})
-      .fetch()
+      .fetch({withRelated: [{
+        'accountRoles': function(qb) {
+          qb.innerJoin('roles','xref_user_account_roles.role_id','roles.id');
+        }
+      }]})
       .then(function(user) {
-        // console.info('user authenticated', user);
-        done(null, user);
+        // console.info('user authenticated', user.serialize());
+        done(null, user.serialize());
       }).catch(function(err) {
         // console.info('jwt auth error', err);
         done(err, null);
@@ -68,6 +73,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
+app.use(roles.middleware());
 
 app.use(cors(function(req, callback) {
   let originRegex = new RegExp('^http://(localhost|'+ip.address()+')');

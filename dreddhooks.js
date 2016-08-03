@@ -11,6 +11,7 @@ const _ = require('lodash');
 let responseStash = {};
 
 const superuserToken = jwt.sign({id: 42}, config.get('secret'), {expiresIn: '100h'});
+const userToken = jwt.sign({id: 1010}, config.get('secret'), {expiresIn: '100h'});
 
 const supplyAuthToken = function(authorization) {
   // hooks.log('getting token for ' + authorization);
@@ -18,6 +19,9 @@ const supplyAuthToken = function(authorization) {
   switch(authorization) {
     case 'Superuser':
       token = superuserToken;
+      break;
+    case 'User':
+      token = userToken;
       break;
     default:
       token = 'NONE';
