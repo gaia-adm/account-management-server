@@ -9,6 +9,7 @@ const chai      = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect    = require('chai').expect;
+const jwt       = require('jsonwebtoken');
 const db        = require('../models/database');
 const Account   = require('../models/accounts');
 const User      = require('../models/users');
@@ -37,6 +38,9 @@ describe('Authorization: ', function() {
   const invitedUserRoles = [2,3];
   const fixedUuid = '77C150B6-9FB1-4CFB-BEDB-FC3D2098EF82';
   const randomUuid = '456FACD4-CFF4-40B9-87D0-6DDDBA06C9E0';
+
+  const token = jwt.sign({id: 42}, config.get('secret'), {expiresIn: '100h'});
+
   let emptyFn = function(){};
 
   let profile = {
@@ -93,6 +97,7 @@ describe('Authorization: ', function() {
     it('should create an account invitation', (done) => {
       request(app)
         .post('/api/accounts/' + seededAccountId + '/invitations')
+        .set('Cookie', 'token='+token)
         .send({
           email   : invitedUserEmail,
           role_ids: invitedUserRoles
