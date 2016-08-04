@@ -16,7 +16,9 @@
     }
   },
   "db": {
-    "connection": "hpe_account_management",
+    "connection": {
+      "database": "hpe_account_management"
+    },
     "debug": false
   }
 }
