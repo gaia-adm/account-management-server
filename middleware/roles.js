@@ -18,21 +18,14 @@ roles.use('superuser', function(req) {
   return req.user.isSuperuser;
 });
 
+roles.use('siteAdmin', function(req) {
+  return req.user.isAdmin || req.user.isSuperuser;
+});
+
 roles.use('self', function(req) {
-  console.info(req.params.id);
   return Number(req.params.id) === Number(req.user.id);
 });
 
-// roles.use('account admin', function(req, res) {
-//   return req.user.isSuperuser;
-// });
-//
-// roles.use('analyst', function(req, res) {
-//   return req.user.isSuperuser;
-// });
-//
-// roles.use('member', function(req, res) {
-//   return req.user.isSuperuser;
-// });
+//account admin, analyst, member not well-handled with a convenience method
 
 module.exports = roles;

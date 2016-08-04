@@ -40,6 +40,8 @@ const validateUser      = function(req, accessToken, refreshToken, profile, next
     }
     let userId = results[0].user_id;
     return User.where({id: userId}).fetch();
+  }).catch(function(error) {
+    console.error('error', error);
   });
   return user;
 };

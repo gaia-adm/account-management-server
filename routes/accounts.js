@@ -23,20 +23,77 @@ const userWithRoles = function(qb) {
   qb.groupBy('users.id','users.firstName','users.lastName','xref_user_account_roles.user_id','xref_user_account_roles.account_id');
 };
 
+const isSiteAdmin = function(req, res, next) {
+  if(!req.userIs('siteAdmin')) {
+    return next(ERRORS.NOT_AUTHORIZED);
+  }
+  next();
+};
+const isSuperuserOrAdmin = function(req, res, next) {
+  if(!req.userIs('superuser') || !req.userIs('account admin')) {
+    return next(ERRORS.NOT_AUTHORIZED);
+  }
+  next();
+};
+const userIsAccountAdmin = function(user, account) {
+  if(!account.users || !_.isArray(account.users)) return false;
+  let matchedUser = _.find(account.users, {id: user.id});
+  if(matchedUser === null) return false;
+  return matchedUser.role_ids.indexOf(1) !== -1;
+};
+
+const userCanEditAccountByAccountId = function(user, accountId, next) {
+  //fetch the account to check user access
+  Account
+    .where({id: accountId})
+    .fetch({
+      withRelated: [{'users':userWithRoles}]
+    })
+    .then(function(account) {
+      //serialize
+      if(!account) {
+        return next(ERRORS.NOT_AUTHORIZED);
+      }
+      account = account.serialize({shallow: false});
+      if(!userIsAccountAdmin(user, account)) {
+        return next(ERRORS.NOT_AUTHORIZED);
+      }
+      next();
+    });
+};
+
+
 /* GET accounts listing. */
 router.route('/')
   .get(
     passport.authenticate('jwt', { failWithError: true, session: false }),
     function(req, res, next) {
-      Account
-        .fetchAll()
-        .then(function(accounts) {
-          res.json(accounts);
-        })
+      let accounts;
+      if(req.userIs('siteAdmin')) {
+        Account
+          .fetchAll()
+          .then(function (accounts) {
+            res.json(accounts);
+          })
+      } else {
+        //if not superuser or site admin, only allow someone with "account admin"=1 level access
+        Account
+          .query(function(qb) {
+            qb.where('xref_user_account_roles.user_id','=',req.user.id)
+              .andWhere('xref_user_account_roles.role_id','=',1)
+              .innerJoin('xref_user_account_roles','xref_user_account_roles.account_id','accounts.id')
+              .groupBy('accounts.id')
+          })
+          .fetchAll()
+          .then(function (accounts) {
+            res.json(accounts);
+          })
+      }
     }
   )
   .post(
     passport.authenticate('jwt', { failWithError: true, session: false }),
+    isSiteAdmin,
     function (req, res, next) {
     let data = _.pick(req.body, ['name', 'description']);
     Account.forge({
@@ -68,8 +125,13 @@ router.route('/:id')
           if(!account) {
             return next(null, false);
           }
-          account = account.serialize({shallow:false});
-          res.json(account);
+          account = account.serialize({shallow: false});
+
+          if(req.userIs('siteAdmin') || userIsAccountAdmin(req.user, account)) {
+            res.json(account);
+          } else {
+            return next(ERRORS.NOT_AUTHORIZED);
+          }
         })
         .catch(function(err) {
           next(err);
@@ -78,7 +140,12 @@ router.route('/:id')
   .put(
     passport.authenticate('jwt', { failWithError: true, session: false }),
     function(req, res, next) {
-      //fetch the user by id
+      if(req.userIs('siteAdmin')) {
+        return next();
+      }
+      userCanEditAccountByAccountId(req.user, req.params.id, next);
+    },
+    function(req, res, next) {
       let params = _.pick(req.body, ['name', 'description', 'enabled', 'users']);
 
       // only allow updates that lack a user object (and don't update users at all), or provides an array of user objects
@@ -159,6 +226,7 @@ router.route('/:id')
   )
   .delete(
     passport.authenticate('jwt', { failWithError: true, session: false }),
+    isSiteAdmin,
     function(req, res, next) {
     return Account
       .where({id: req.params.id})
@@ -174,6 +242,12 @@ router.route('/:id')
 router.route('/:id/invitations')
   .post(
     passport.authenticate('jwt', { failWithError: true, session: false }),
+    function(req, res, next) {
+      if(req.userIs('siteAdmin')) {
+        return next();
+      }
+      userCanEditAccountByAccountId(req.user, req.params.id, next);
+    },
     function(req, res, next) {
     let params = _.pick(req.body, ['email', 'role_ids']);
     params.id = req.params.id;

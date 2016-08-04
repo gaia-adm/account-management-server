@@ -10,8 +10,17 @@ exports.seed = function(knex, Promise) {
     .then(function () {
       return Promise.all([
         // Inserts seed entries
-        knex('users').insert({id: 42, firstName: 'Richard', lastName: 'Plotkin', isSuperuser: true}),
-        knex('users').insert({id: 1010, firstName: 'Alexei', lastName: 'Ledenev'}),
+
+        //USER 42 is a SUPERUSER
+        knex('users').insert({id: 42, firstName: 'Awesome', lastName: 'Superuser', isSuperuser: true, isAdmin: true}),
+
+        //USER 43 is a SITE ADMIN
+        knex('users').insert({id: 43, firstName: 'Site', lastName: 'Admin', isSuperuser: false, isAdmin: true}),
+
+        //USER 44 is an ACCOUNT ADMIN on account 36 and an ANALYST on account 37
+        knex('users').insert({id: 44, firstName: 'Account', lastName: 'Admin', isSuperuser: false, isAdmin: false}),
+
+        knex('users').insert({id: 1010, firstName: 'Alexei', lastName: 'Ledenev', isSuperuser: false, isAdmin: true}),
         knex('accounts').insert({id:36, name: 'Test Account', description: 'Short Description'}),
         knex('accounts').insert({id:37, name: 'Another Account', description: 'Another Description'}),
         knex('roles').insert({id:1, name: 'Account Admin'}),
@@ -20,9 +29,16 @@ exports.seed = function(knex, Promise) {
       ]).then(function() {
         return Promise.all([
           knex('xref_user_emails').insert({user_id:42,email:'richard.plotkin@toptal.com'}),
-          knex('xref_user_emails').insert({user_id:42,email:'richardjplotkin@gmail.com'}),
+          knex('xref_user_emails').insert({user_id:43,email:'richardjplotkin@gmail.com'}),
+          knex('xref_user_emails').insert({user_id:44,email:'richard@richardplotkin.com'}),
+          knex('xref_user_emails').insert({user_id:1010,email:'alexei.ledenev@hpe.com'}),
           knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:2}),
-          knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:3})
+          knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:3}),
+          knex('xref_user_account_roles').insert({user_id:43,account_id:36,role_id:1}),
+          knex('xref_user_account_roles').insert({user_id:43,account_id:36,role_id:2}),
+          knex('xref_user_account_roles').insert({user_id:44,account_id:36,role_id:1}),
+          knex('xref_user_account_roles').insert({user_id:44,account_id:37,role_id:2}),
+          knex('xref_user_account_roles').insert({user_id:1010,account_id:37,role_id:3})
         ]);
       })
     });
