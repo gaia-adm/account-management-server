@@ -20,6 +20,9 @@ exports.seed = function(knex, Promise) {
         //USER 44 is an ACCOUNT ADMIN on account 36 and an ANALYST on account 37
         knex('users').insert({id: 44, firstName: 'Account', lastName: 'Admin', isSuperuser: false, isAdmin: false}),
 
+        //USER 45 is an ANALYST on account 36 and a MEMBER on account 37
+        knex('users').insert({id: 45, firstName: 'Account', lastName: 'Analyst', isSuperuser: false, isAdmin: false}),
+
         knex('users').insert({id: 1010, firstName: 'Alexei', lastName: 'Ledenev', isSuperuser: false, isAdmin: true}),
         knex('accounts').insert({id:36, name: 'Test Account', description: 'Short Description'}),
         knex('accounts').insert({id:37, name: 'Another Account', description: 'Another Description'}),
@@ -31,6 +34,7 @@ exports.seed = function(knex, Promise) {
           knex('xref_user_emails').insert({user_id:42,email:'richard.plotkin@toptal.com'}),
           knex('xref_user_emails').insert({user_id:43,email:'richardjplotkin@gmail.com'}),
           knex('xref_user_emails').insert({user_id:44,email:'richard@richardplotkin.com'}),
+          knex('xref_user_emails').insert({user_id:45,email:'emilykplotkin@gmail.com'}),
           knex('xref_user_emails').insert({user_id:1010,email:'alexei.ledenev@hpe.com'}),
           knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:2}),
           knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:3}),
@@ -38,6 +42,8 @@ exports.seed = function(knex, Promise) {
           knex('xref_user_account_roles').insert({user_id:43,account_id:36,role_id:2}),
           knex('xref_user_account_roles').insert({user_id:44,account_id:36,role_id:1}),
           knex('xref_user_account_roles').insert({user_id:44,account_id:37,role_id:2}),
+          knex('xref_user_account_roles').insert({user_id:45,account_id:36,role_id:2}),
+          knex('xref_user_account_roles').insert({user_id:45,account_id:37,role_id:3}),
           knex('xref_user_account_roles').insert({user_id:1010,account_id:37,role_id:3})
         ]);
       })
