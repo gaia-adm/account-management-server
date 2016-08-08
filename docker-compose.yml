@@ -28,12 +28,10 @@ services:
     depends_on:
       - db
     environment:
-      - PGHOST=db
-      - PGDATABASE=hpe_account_management
-      - PGUSER=hpe_account_management
+      - DB_HOST=db
     ports:
-      - "3000:3000"
-    entrypoint: ["./bin/wait-for-postgres.sh", "postgres://hpe_account_management@db/hpe_account_management", "npm start"]
+      - "3100:3000"
+    entrypoint: ["./bin/wait-for-postgres.sh", "postgres://${DB_USER}@db/${DB_DATABASE}", "npm start"]
 
   # client app
   client:
@@ -43,10 +41,18 @@ services:
         - https_proxy
         - http_proxy
         - no_proxy
+    depends_on:
+      - express-app
+    environment:
+      - BACKEND_HOST=backend
+      - BACKEND_PORT=3000
+    links:
+      - express-app
+      - express-app:backend
     networks:
       - account-net
     ports:
-      - "8080:8080"
+      - "8100:8080"
     entrypoint: ["node", "./bin/client"]
 
 volumes:

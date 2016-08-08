@@ -1,4 +1,5 @@
 'use strict';
+require('dotenv').load({silent: true});
 
 const config = require('config');
 const express = require('express');

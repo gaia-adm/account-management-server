@@ -1,5 +1,6 @@
 #FROM node:4.4.7-slim
 FROM mhart/alpine-node:4.4.7
+RUN apk add --no-cache bash
 
 # Create app directory
 RUN mkdir -p /usr/src/app
