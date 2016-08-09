@@ -1,5 +1,5 @@
 'use strict';
-
+require('dotenv').load({silent: true});
 const hooks = require('hooks');
 const jwt = require('jsonwebtoken');
 const config = require('config');

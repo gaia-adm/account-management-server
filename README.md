@@ -30,6 +30,13 @@ This app is build in [NodeJS](https://nodejs.org), with an [Express](https://exp
 
 3. Install project dependencies. These dependencies are specified in package.json, and will be installed at the project level:
     - ```npm install```
+
+## Docker
+- ```docker-compose up``` will start three containers: db, backend, and client
+- after bringing up services, any combination of the following commands may be necessary
+- ```docker-compose run backend knex migrate:latest``` will migrate to the latest db
+- ```docker-compose run backend knex seed:run``` will seed/re-seed the production environment with essential data. It will NOT delete data from the DB instance
+- ```docker-compose run backend knex seed:run --env=reset``` will delete everything in the db
     
 ## Notes for developers
 - The front-end app is designed to be written with ES2015 using AngularJS 1.5+, compiled by webpack. [This page](http://angular-tips.com/blog/2015/06/using-angular-1-dot-x-with-es6-and-webpack/) does a really great job of outlining when to use (and not use) classes.

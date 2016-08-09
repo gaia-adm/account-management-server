@@ -16,7 +16,7 @@ services:
       - account-net
 
   # backend server
-  express-app:
+  backend:
     build:
       context: .
       args:
@@ -31,29 +31,29 @@ services:
       - DB_HOST=db
     ports:
       - "3100:3000"
-    entrypoint: ["./bin/wait-for-postgres.sh", "postgres://${DB_USER}@db/${DB_DATABASE}", "npm start"]
+    entrypoint: ["./bin/wait-for-postgres.sh", "postgres://${DB_USER}@db/${DB_DATABASE}", "--"]
+    command: ["npm", "start"]
 
   # client app
   client:
     build:
-      context: .
+      context: ./client
       args:
         - https_proxy
         - http_proxy
         - no_proxy
     depends_on:
-      - express-app
+      - backend
     environment:
       - BACKEND_HOST=backend
       - BACKEND_PORT=3000
     links:
-      - express-app
-      - express-app:backend
+      - backend
+      - backend:express-app
     networks:
       - account-net
     ports:
       - "8100:8080"
-    entrypoint: ["node", "./bin/client"]
 
 volumes:
   pgdata:

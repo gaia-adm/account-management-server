@@ -14,12 +14,11 @@ ENV NODE_ENV ${NODE}
 COPY package.json /tmp/package.json
 RUN cd /tmp && npm install
 RUN cp -a /tmp/node_modules /usr/src/app/
+RUN npm install -g knex
 
 # Bundle app source
 COPY . /usr/src/app
-RUN npm run build
 
 EXPOSE 3000
-EXPOSE 8080
 
 CMD [ "node", "./bin/www" ]
