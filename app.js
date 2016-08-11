@@ -3,6 +3,7 @@ require('dotenv').load({silent: true});
 
 const config = require('config');
 const express = require('express');
+const mailer = require('express-mailer');
 const cors = require('cors');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -64,7 +65,7 @@ var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -86,6 +87,19 @@ app.use(cors(function(req, callback) {
   };
   callback(null, options);
 }));
+
+//SET UP SMTP MAILER
+mailer.extend(app, {
+  from: process.env.INVITATION_EMAIL_FROM,
+  host: process.env.SMTP_HOST, // hostname
+  secureConnection: true, // use SSL
+  port: 465, // port for secure SMTP
+  transportMethod: 'SMTP', // default is SMTP. Accepts anything that nodemailer accepts
+  auth: {
+    user: process.env.SMTP_USERNAME,
+    pass: process.env.SMTP_PASSWORD
+  }
+});
 
 app.use('/', routes);
 app.use('/auth', auth);

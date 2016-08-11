@@ -1,0 +1,12 @@
+// project/views/email.jade
+
+html
+    head
+        meta(http-equiv= 'Content-Type', content= 'text/html; charset=UTF-8')
+        title= subject
+        body
+            h1.h1 You have an invitation
+            p.
+                You have been invited to join an account for HPE Account Management. Follow the link below to get access.
+                You'll need to sign in using this email address: #{email}
+            a(href= path) Accept Invitation

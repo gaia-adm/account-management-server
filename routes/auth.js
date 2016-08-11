@@ -177,6 +177,7 @@ passport.use('google-invitation', new GoogleStrategy({
     clientID: config.get('authentication.googleStrategy.clientId'),
     clientSecret: config.get('authentication.googleStrategy.clientSecret'),
     callbackURL: config.get('authentication.googleStrategy.invitationCallbackURL'),
+    passReqToCallback: true
   },
   validateInvitationCallback)
 );

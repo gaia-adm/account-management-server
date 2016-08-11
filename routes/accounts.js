@@ -11,6 +11,16 @@ const Account = require('../models/accounts');
 const UserAccountRole = require('../models/userAccountRoles');
 const AccountInvitations = require('../models/accountInvitations');
 const ERRORS = require('./errors');
+const ip = require('ip');
+
+const sendInvitation = function(req, uuid, recipient) {
+  let send = Promise.promisify(req.app.mailer.send, {context: req.app.mailer});
+  return send('invitation', {
+    to     : recipient, // REQUIRED. This can be a comma delimited string just like a normal email to field.
+    subject: 'HPE Account Invitation', // REQUIRED.
+    path   : 'http://' + ip.address() + ':' + req.app.get('port') + '/auth/google/invitation/' + uuid
+  });
+};
 
 const userWithRoles = function(qb) {
   qb.column([
@@ -249,35 +259,49 @@ router.route('/:id/invitations')
       userCanEditAccountByAccountId(req.user, req.params.id, next);
     },
     function(req, res, next) {
-    let params = _.pick(req.body, ['email', 'role_ids']);
-    params.id = req.params.id;
-    if(!validator.isEmail(params.email)) {
-      return next(ERRORS.INVITATION_INVALID_EMAIL);
-    }
-    if(!_.isArray(params.role_ids) || params.role_ids.length === 0) {
-      return next(ERRORS.INVITATION_NO_ROLES_PROVIDED);
-    }
+      let params = _.pick(req.body, ['email', 'role_ids']);
+      let loadedInvitation;
 
-    let saveAccount = AccountInvitations.forge({
-        account_id: params.id,
-        email: params.email,
-        invited_role_ids: params.role_ids
-      }).save();
-
-    let loadInvitation = saveAccount.then(function(invitation) {
-      if(!invitation) return Promise.reject('Invitation not created.');
-      return invitation.refresh();
-    });
-
-    return loadInvitation.then(function(invitation) {
-      if(!invitation) {
-        return next(null, false);
+      params.id = req.params.id;
+      if(!validator.isEmail(params.email)) {
+        return next(ERRORS.INVITATION_INVALID_EMAIL);
       }
-      res.json(invitation);
-    }).catch(function(err) {
-      return next(err);
-    })
+      if(!_.isArray(params.role_ids) || params.role_ids.length === 0) {
+        return next(ERRORS.INVITATION_NO_ROLES_PROVIDED);
+      }
 
-  });
+      let saveAccount = AccountInvitations.forge({
+          account_id: params.id,
+          email: params.email,
+          invited_role_ids: params.role_ids
+        }).save();
+
+      let loadInvitation = saveAccount.then(function(invitation) {
+        if(!invitation) return Promise.reject('Invitation not created.');
+        return invitation.refresh();
+      });
+
+      let invitationSent = loadInvitation.then(function(invitation) {
+        if(!invitation) {
+          return next(null, false);
+        }
+        loadedInvitation = invitation;
+        return sendInvitation(req, invitation.get('uuid'), invitation.get('email'))
+      });
+
+      return invitationSent.then(function(sent) {
+        res.status(200).json(loadedInvitation);
+      }).catch(function(err) {
+        if(loadedInvitation) {
+          loadedInvitation.destroy().finally(function() {
+            return next(err);
+          });
+        } else {
+          return next(err);
+        }
+      })
+
+    }
+  );
 
 module.exports = router;
