@@ -16,7 +16,7 @@ const User      = require('../models/users');
 const UserEmail = require('../models/userEmails');
 const AccountInvitations = require('../models/accountInvitations');
 const authRoutes = require('../routes/auth');
-const validateInvitation = authRoutes.validateInvitation;
+const validateInvitation = require('../routes/invitations').validateInvitation;
 const validateUser = authRoutes.validateUser;
 const CONSTANTS = authRoutes.CONSTANTS;
 

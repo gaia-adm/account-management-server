@@ -51,3 +51,4 @@ npm-debug.log
 .idea
 /client/dist
 /reports
+/client/.env

@@ -21,7 +21,7 @@ const routes = require('./routes/index');
 const auth = require('./routes/auth').router;
 const users = require('./routes/users');
 const accounts = require('./routes/accounts');
-const invitations = require('./routes/invitations');
+const invitations = require('./routes/invitations').router;
 
 const User = require('./models/users');
 

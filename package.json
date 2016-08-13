@@ -4,9 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev-server": "nodemon ./bin/www",
-    "dev-client": "webpack-dev-server --history-api-fallback --inline --progress",
-    "build": "rimraf dist && webpack --bail --progress --profile",
+    "start:dev": "nodemon ./bin/www",
     "pretest": "knex seed:run --env=test",
     "test": "NODE_ENV=test mocha",
     "doc": "aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html",
