@@ -18,6 +18,7 @@ RUN npm install -g knex
 
 # Bundle app source
 COPY . /usr/src/app
+COPY ./.env.default /usr/src/app/.env
 
 EXPOSE 3000
 

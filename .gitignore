@@ -52,3 +52,4 @@ npm-debug.log
 /client/dist
 /reports
 /client/.env
+/.env
