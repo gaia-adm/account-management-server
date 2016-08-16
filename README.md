@@ -3,8 +3,9 @@
 This app is build in [NodeJS](https://nodejs.org), with an [Express](https://expressjs.com)-based api and a PostgreSQL database.
 
 ## Setup for development
-1. Install [NodeJS](https://nodejs.org), which includes the [npm](https://www.npmjs.com/) package manager.
-2. Install global dependencies. These can all be installed *without* the global option, but are easier to develop with when done globally. (Install at once: ```npm install -g knex mocha dredd aglio```)  
+1. Install PostgreSQL (the site was developed with 9.5, but anything >=9.1 should work)
+2. Install [NodeJS](https://nodejs.org), which includes the [npm](https://www.npmjs.com/) package manager.
+3. Install global dependencies. These can all be installed *without* the global option, but are easier to develop with when done globally. (Install at once: ```npm install -g knex mocha dredd aglio```)  
     1. ```npm install -g knex```
         - [Knex.js](http://knexjs.org/) is a SQL query builder, with a CLI for database [migration](http://knexjs.org/#Migrations-CLI) and [seeding](http://knexjs.org/#Seeds-CLI).
         - File locations
@@ -28,12 +29,16 @@ This app is build in [NodeJS](https://nodejs.org), with an [Express](https://exp
         - [Aglio](https://github.com/danielgtaylor/aglio) converts an API description document from markdown into a publishable doc.
         - ```aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html```
 
-3. Install project dependencies. These dependencies are specified in package.json, and will be installed at the project level:
+4. Install project dependencies. These dependencies are specified in package.json, and will be installed at the project level:
     - ```npm install```
+5. Configure your environment
+    1. Copy ./.env.default to ./.env and set up appropriate variables
+    2. If you choose to use the database named "hpe_account_management," create a DB of that name in your local PostgreSQL instance
+    3. Copy ./client/.env.default to ./client/.env and set up appropriate variables
 
 ## Docker
 - ```docker-compose up``` will start three containers: db, backend, and client
-- after bringing up services, any combination of the following commands may be necessary
+- after bringing up services, any combination of the following commands may be necessary (but, by default, the DB will be migrated to latest and seeded with production data)
 - ```docker-compose run backend knex migrate:latest``` will migrate to the latest db
 - ```docker-compose run backend knex seed:run``` will seed/re-seed the production environment with essential data. It will NOT delete data from the DB instance
 - ```docker-compose run backend knex seed:run --env=reset``` will delete everything in the db
