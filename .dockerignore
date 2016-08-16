@@ -6,3 +6,5 @@ _notes
 **/Dockerfile
 /client/.env
 /.env
+node_modules
+client
