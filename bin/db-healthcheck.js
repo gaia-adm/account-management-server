@@ -3,11 +3,13 @@ var args = process.argv;
 var config = require('config');
 var pg = require('pg');
 
+var dbNeedsToBeSeeded = false;
+
 var connection = (args[2]) ? args[2] : {
   "database": "hpe_account_management",
   "user": "hpe_account_management",
   "password": "",
-  "port": 5532
+  "port": 5432
 };
 
 console.log('CONNECTION: ' + JSON.stringify(connection));
@@ -37,7 +39,10 @@ var endClientConnection = // disconnect the client
 
 
 client.connect(function (err) {
-  if (err) { console.error(err); }
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
   console.log('Successful connection to postgres database.');
 
   //Check the migration
@@ -46,7 +51,32 @@ client.connect(function (err) {
   })
     .then(function(version) {
       console.info('version: ' + version);
-      end();
+
+      //Check for the count of the 'users' table
+      //If it has 0 members,
+      // the DB has never been populated,
+      // and needs to be seeded
+      // with production data
+      db.select().from('users')
+        .then(function(users) {
+          if(!users || users.length === 0) {
+            //if the users table is empty
+            db.seed.run({
+              directory: './seeds/production'
+            })
+              .then(end)
+              .catch(function(err) {
+                console.error('db could not be seeded');
+                process.exit(1);
+              })
+          } else {
+            end();
+          }
+        })
+        .catch(function(err) {
+          console.error(err);
+          process.exit(1);
+        })
     })
     .catch(function(err) {
       console.info('error', err);
