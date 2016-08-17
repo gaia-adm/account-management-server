@@ -18,7 +18,7 @@ const _ = require('lodash');
 const CONSTANTS = require('../config/constants');
 
 const validateUser      = function(req, accessToken, refreshToken, profile, next) {
-  console.info('profile', profile);
+  // console.info('profile', profile);
   if(!profile || !profile.emails) {
     return Promise.reject();
   }

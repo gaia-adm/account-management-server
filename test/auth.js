@@ -26,7 +26,7 @@ const reseed = function(done) {
 describe('Authorization: ', function() {
 
   before(function(done) {
-    return reseed(done);
+    reseed(done);
   });
 
   const seededAccountId = 36;

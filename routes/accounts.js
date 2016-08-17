@@ -15,7 +15,12 @@ const ip = require('ip');
 
 const sendInvitation = function(req, uuid, recipient) {
   let send = Promise.promisify(req.app.mailer.send, {context: req.app.mailer});
-  return send('invitation', {
+  return send({
+    template: 'invitation',
+    headers: [{
+      'X-Mailgun-Drop-Message': process.env.NODE_ENV==='test'?'yes':''
+    }]
+  }, {
     to     : recipient, // REQUIRED. This can be a comma delimited string just like a normal email to field.
     subject: 'HPE Account Invitation', // REQUIRED.
     path   : 'http://' + process.env.CLIENT_HOST + ':' + process.env.CLIENT_PORT + '/invitations/' + uuid

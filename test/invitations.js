@@ -30,7 +30,7 @@ const randomUuid = '456FACD4-CFF4-40B9-87D0-6DDDBA06C9E0';
 const token = jwt.sign({id: 42}, config.get('secret'), {expiresIn: '100h'});
 
 const reseed = function(done) {
-  return db.knex.seed.run().then(function() {
+  db.knex.seed.run().then(function() {
     done();
   })
 };
@@ -64,7 +64,7 @@ let profile = {
 describe("Invitations:", () => {
 
   before(function(done) {
-    return reseed(done);
+    reseed(done);
   });
 
   describe('Inviting a user by email address', () => {
