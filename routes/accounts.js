@@ -105,19 +105,19 @@ router.route('/')
     passport.authenticate('jwt', { failWithError: true, session: false }),
     isSiteAdmin,
     function (req, res, next) {
-    let data = _.pick(req.body, ['name', 'description']);
-    Account.forge({
-      name: data.name,
-      description: data.description
-    })
-      .save(null, {method: 'insert'})
-      .then(function(account) {
-        res.json(account);
+      let data = _.pick(req.body, ['name', 'description']);
+      Account.forge({
+        name: data.name,
+        description: data.description
       })
-      .catch(function(err) {
-        next(err);
-      });
-  });
+        .save(null, {method: 'insert'})
+        .then(function(account) {
+          res.json(account);
+        })
+        .catch(function(err) {
+          next(err);
+        });
+    });
 
 /* Single Account */
 router.route('/:id')
@@ -195,27 +195,27 @@ router.route('/:id')
         return new Account({
           id: req.params.id
         })
-        .save({
-          name        : params.name,
-          description : params.description,
-          enabled     : params.enabled
-        },{
-          transacting: t,
-          method: 'update',
-          require: true
-        })
-        .tap(function(model) {
-          if(params.users.length === 0) return true;
-          return UserAccountRole
-            .where({'account_id': model.id})
-            .destroy({require: false, transacting: t});
-        })
-        .tap(function(model) {
-          if(params.users.length === 0) return true;
-          return Promise.map(params.users, function(data) {
-            return new UserAccountRole(data).save({'account_id': model.id}, {method: 'insert', require: false, transacting: t});
+          .save({
+            name        : params.name,
+            description : params.description,
+            enabled     : params.enabled
+          },{
+            transacting: t,
+            method: 'update',
+            require: true
+          })
+          .tap(function(model) {
+            if(params.users.length === 0) return true;
+            return UserAccountRole
+              .where({'account_id': model.id})
+              .destroy({require: false, transacting: t});
+          })
+          .tap(function(model) {
+            if(params.users.length === 0) return true;
+            return Promise.map(params.users, function(data) {
+              return new UserAccountRole(data).save({'account_id': model.id}, {method: 'insert', require: false, transacting: t});
+            });
           });
-        });
       }).then(function(account) {
         if(!account) {
           return next(null, false);
@@ -238,14 +238,14 @@ router.route('/:id')
     passport.authenticate('jwt', { failWithError: true, session: false }),
     isSiteAdmin,
     function(req, res, next) {
-    return Account
-      .where({id: req.params.id})
-      .destroy()
-      .then(function(user) {
-        res.json({'message': 'Account successfully deleted'});
-      }).catch(function(err) {
-        next(err);
-      })
+      return Account
+        .where({id: req.params.id})
+        .destroy()
+        .then(function(user) {
+          res.json({'message': 'Account successfully deleted'});
+        }).catch(function(err) {
+          next(err);
+        })
     }
   );
 
@@ -270,11 +270,43 @@ router.route('/:id/invitations')
         return next(ERRORS.INVITATION_NO_ROLES_PROVIDED);
       }
 
-      let saveAccount = AccountInvitations.forge({
-          account_id: params.id,
-          email: params.email,
+      //check if the email already represents an account user
+      /**
+       SELECT xref_user_account_roles.account_id, xref_user_emails.email
+       FROM users
+       INNER JOIN xref_user_emails ON xref_user_emails.user_id = users.id
+       INNER JOIN xref_user_account_roles ON xref_user_account_roles.user_id = users.id
+       WHERE xref_user_emails.email = 'richardjplotkin@gmail.com'
+       GROUP BY xref_user_account_roles.account_id, users.id, xref_user_emails.email
+       **/
+
+      let emailHasAccess = UserAccountRole.query(
+        function(qb) {
+          qb.column([
+            'xref_user_account_roles.account_id',
+            'xref_user_emails.email'
+          ]);
+          qb.innerJoin('users', 'xref_user_account_roles.user_id', 'users.id');
+          qb.innerJoin('xref_user_emails', 'xref_user_emails.user_id', 'users.id');
+          qb.where('xref_user_emails.email','=',params.email);
+          qb.where('xref_user_account_roles.account_id','=',params.id);
+        }
+      )
+        .fetch()
+        .then(function(result) {
+          // console.info('my result from this thang', result);
+          //if there IS a result, that's BAD (in this case)
+          if(result !== null) return Promise.reject('User already has access to account.');
+        });
+
+      let saveAccount = emailHasAccess.then(function() {
+        // console.info('calling saveAccount');
+        return AccountInvitations.forge({
+          account_id      : params.id,
+          email           : params.email,
           invited_role_ids: params.role_ids
         }).save();
+      });
 
       let loadInvitation = saveAccount.then(function(invitation) {
         if(!invitation) return Promise.reject('Invitation not created.');
@@ -292,6 +324,13 @@ router.route('/:id/invitations')
       return invitationSent.then(function(sent) {
         res.status(200).json(loadedInvitation);
       }).catch(function(err) {
+        if(_.isString(err)) {
+          err = {
+            status: 400,
+            name: 'ERROR',
+            message: err
+          }
+        }
         if(loadedInvitation) {
           loadedInvitation.destroy().finally(function() {
             return next(err);
