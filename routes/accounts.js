@@ -164,34 +164,41 @@ router.route('/:id')
       let params = _.pick(req.body, ['name', 'description', 'enabled', 'users']);
 
       // only allow updates that lack a user object (and don't update users at all), or provides an array of user objects
-      if(params.users && (!_.isArray(params.users) ||  params.users.length === 0)) {
+      if(params.users && (!_.isArray(params.users))) {
         return next(ERRORS.ACCOUNT_UPDATE_REQUIRES_USERS)
       }
-      if(!params.users) params.users = [];
 
       // validate the updating user objects
       let err = null;
-      params.users = params.users.map(function(user) {
-        if((!user.id && !user.user_id) || (!user.role_id && !user.role_ids)) {
-          err = ERRORS.ACCOUNT_UPDATE_USER_DATA_VALIDATION;
-        }
 
-        if(user.role_ids) {
-          let userRoles = [];
-          user.role_ids.forEach(function(role_id) {
-            userRoles.push({
-              'user_id': (user.id) ? user.id : user.user_id,
-              'role_id': role_id
+      if(params.users) {
+        //after passing through this map function, if all users are without roles,
+        // then params.users will be an empty array
+        params.users = params.users.map(function (user) {
+          if ((!user.id && !user.user_id) || (!user.role_id && !user.role_ids)) {
+            err = ERRORS.ACCOUNT_UPDATE_USER_DATA_VALIDATION;
+          }
+
+          if (user.role_ids) {
+            let userRoles = [];
+            user.role_ids.forEach(function (role_id) {
+              userRoles.push({
+                'user_id': (user.id) ? user.id : user.user_id,
+                'role_id': role_id
+              });
             });
-          });
-          return userRoles;
-        }
-        return {
-          'user_id': (user.id) ? user.id : user.user_id,
-          'role_id': user.role_id
-        }
-      });
-      params.users = _.flatten(params.users);
+            return userRoles;
+          }
+          return {
+            'user_id': (user.id) ? user.id : user.user_id,
+            'role_id': user.role_id
+          }
+        });
+        params.users = _.flatten(params.users);
+      } else {
+        //if params.users was not provided by the request, set it to this special (useless) value
+        params.users = -1;
+      }
 
       if(err) next(err);
 
@@ -210,13 +217,13 @@ router.route('/:id')
             require: true
           })
           .tap(function(model) {
-            if(params.users.length === 0) return true;
+            if(params.users === -1) return true;
             return UserAccountRole
               .where({'account_id': model.id})
               .destroy({require: false, transacting: t});
           })
           .tap(function(model) {
-            if(params.users.length === 0) return true;
+            if(params.users === -1) return true;
             return Promise.map(params.users, function(data) {
               return new UserAccountRole(data).save({'account_id': model.id}, {method: 'insert', require: false, transacting: t});
             });

@@ -57,19 +57,6 @@ describe('Error conditions on /accounts', function() {
           done();
         });
     });
-    it('Should fail an update with an empty users array', function(done) {
-      let data = _.clone(accountData);
-      data.users = [];
-      request(app)
-        .put('/api/accounts/37')
-        .set('Cookie', 'token='+token)
-        .send(data)
-        .expect(ROUTE_ERRORS.ACCOUNT_UPDATE_REQUIRES_USERS.status)
-        .end(function(err, res) {
-          assert.equal(res.body.message, ROUTE_ERRORS.ACCOUNT_UPDATE_REQUIRES_USERS.message);
-          done();
-        });
-    });
   });
 
 });
