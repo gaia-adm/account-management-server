@@ -11,8 +11,13 @@ exports.up = function(knex, Promise) {
           table.specificType('invited_role_ids','int[]');
           table.dateTime('date_invited').defaultTo(knex.fn.now());
           table.dateTime('date_accepted');
-          table.unique(['account_id', 'email']);
-        });
+        })
+        .raw('CREATE UNIQUE INDEX ' +
+          'ON account_invitations (account_id, email, date_accepted) ' +
+          'WHERE date_accepted IS NOT NULL')
+        .raw('CREATE UNIQUE INDEX ' +
+          'ON account_invitations (account_id, email) ' +
+          'WHERE date_accepted IS NULL');
     });
 };
 

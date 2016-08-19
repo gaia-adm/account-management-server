@@ -85,8 +85,9 @@ router.route('/')
     function(req, res, next) {
       let accounts;
       if(req.userIs('siteAdmin')) {
-        Account
-          .fetchAll()
+        new Account()
+          .orderBy('name')
+          .query()
           .then(function (accounts) {
             res.json(accounts);
           })
@@ -98,6 +99,7 @@ router.route('/')
               .andWhere('xref_user_account_roles.role_id','=',1)
               .innerJoin('xref_user_account_roles','xref_user_account_roles.account_id','accounts.id')
               .groupBy('accounts.id')
+              .orderBy('accounts.name')
           })
           .fetchAll()
           .then(function (accounts) {
@@ -317,7 +319,14 @@ router.route('/:id/invitations')
           account_id      : params.id,
           email           : params.email,
           invited_role_ids: params.role_ids
-        }).save();
+        }).save()
+          .catch(function(e) {
+            if(e.detail.match(/already exists/i)) {
+              throw new Error('An invitation already exists for this email address.');
+            } else {
+              throw e;
+            }
+          })
       });
 
       let loadInvitation = saveAccount.then(function(invitation) {
