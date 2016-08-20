@@ -38,6 +38,18 @@ const userWithRoles = function(qb) {
   qb.groupBy('users.id','users.firstName','users.lastName','xref_user_account_roles.user_id','xref_user_account_roles.account_id');
 };
 
+const userWithRolesAndEmails = function(qb) {
+  qb.column([
+    'users.firstName',
+    'users.lastName',
+    'users.id',
+    db.knex.raw('array_agg(roles.id) AS role_ids, array_agg(roles.name) AS role_names, array_agg(xref_user_emails.email) AS emails')
+  ]);
+  qb.innerJoin('roles','xref_user_account_roles.role_id','roles.id');
+  qb.innerJoin('xref_user_emails','xref_user_emails.user_id','users.id');
+  qb.groupBy('users.id','users.firstName','users.lastName','xref_user_account_roles.user_id','xref_user_account_roles.account_id');
+};
+
 const isSiteAdmin = function(req, res, next) {
   if(!req.userIs('siteAdmin')) {
     return next(ERRORS.NOT_AUTHORIZED);
@@ -135,7 +147,7 @@ router.route('/:id')
       Account
         .where({id: req.params.id})
         .fetch({
-          withRelated: [{'users':userWithRoles}, 'invitations']
+          withRelated: [{'users':userWithRolesAndEmails}, 'invitations']
         })
         .then(function(account) {
           //serialize

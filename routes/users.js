@@ -80,6 +80,10 @@ router.route('/')
 
       User.createUser(params)
         .then(function(user) {
+          user = user.serialize();
+          user.emails = user.emails.map(email => {
+            return email.email ? email.email : null;
+          });
           res.json(user);
         })
         .catch(function(err) {
