@@ -90,11 +90,15 @@ hooks.before("Users > User Collection > Create a Single User", function(transact
 
 //Before updating the user, save the pre-update state
 hooks.before("Users > User > Update A Single User", function(transaction) {
+  // hooks.log('Update a single user');
   let uri = transaction.request.uri;
   let id = uri.replace(/.*\/(\d+)$/,'$1');
   User.where({id: Number(id)}).fetch().then(function(user) {
     responseStash.user = user;
+    // hooks.log('responsestash.user1', responseStash.user);
   });
+  // hooks.log('responsestash.user2', responseStash.user);
+
 });
 
 //After updating the user, apply the pre-update state

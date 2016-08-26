@@ -95,7 +95,6 @@ passport.use('google-id-token', new GoogleTokenStrategy({
 router.get('/google',
   passport.authenticate('google', {
     scope: 'profile email',
-    login_hint: 'richardjplotkin@gmail.com',
     response_type: 'token'
   }));
 

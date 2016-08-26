@@ -12,6 +12,8 @@ const UserEmail = require('../models/userEmails');
 const ERRORS = require('./errors');
 
 const isSuperuser = function(req, res, next) {
+  console.log('******* SUPERUSER? *********');
+  console.log(req.user);
   if(!req.userIs('superuser')) {
     return next(ERRORS.NOT_AUTHORIZED);
   }
@@ -29,6 +31,19 @@ const isSuperuserOrSelf = function(req, res, next) {
   }
   next();
 };
+const userEmailAggregation = function(qb) {
+  qb.column([
+    'user_id',
+    db.knex.raw('array_agg(email) AS emails')
+  ]);
+  qb.innerJoin('users','xref_user_emails.user_id','users.id');
+  qb.groupBy('user_id');
+  qb.return('emails');
+};
+const prepUserForResponse = function(user) {
+  user.emails = (user.emails.length > 0) ? user.emails[0].emails : [];
+  return user;
+};
 
 /* GET users listing. */
 router.route('/')
@@ -37,27 +52,9 @@ router.route('/')
     isSuperuser,
     function(req, res, next) {
       User
-          .fetchAll({
-            withRelated: [
-              {'emails':
-                function(qb) {
-                  qb.column([
-                    'user_id',
-                    db.knex.raw('array_agg(email) AS emails')
-                  ]);
-                  qb.innerJoin('users','xref_user_emails.user_id','users.id');
-                  qb.groupBy('user_id');
-                  qb.return('emails');
-
-                }
-              }
-            ]
-          })
+          .fetchAll({withRelated: [{'emails':userEmailAggregation}]})
           .then(function(users) {
-            users = users.serialize().map(function(user) {
-              user.emails = (user.emails.length > 0) ? user.emails[0].emails : [];
-              return user;
-            });
+            users = users.serialize().map(prepUserForResponse);
             res.json(users);
           })
     }
@@ -137,33 +134,84 @@ router.route('/:id')
     isSuperuserOrSelf,
     function(req, res, next) {
       let params = _.pick(req.body, ['firstName', 'lastName', 'emails']);
+      let emailList = params.emails;
       params.id = req.params.id;
-      params.emails = _.map(params.emails, function(email) {
-        return {'email': email};
-      });
+
+      let userDefinition = {
+        firstName: params.firstName,
+        lastName : params.lastName
+      };
+      if(req.userIs('superuser')) {
+        //don't flip permissions if they're not explicitly given
+        userDefinition.isSuperuser = req.body.isSuperuser || undefined;
+        userDefinition.isAdmin = req.body.isAdmin || undefined;
+      }
 
       db.transaction(function(t) {
-        return new User({
-          id: params.id
-        })
-          .save({
-            firstName: params.firstName,
-            lastName : params.lastName
-          },{
-            transacting: t,
-            method: 'update',
-            require: true
-          })
-          .tap(function(model) {
-            return Promise.map(params.emails, function(data) {
-              //NOTE: must _not_ explicitly set method, because we're okay with an insert or an update
-              // we are *not* removing emails on this update
-              return new UserEmail(data).save({'user_id': model.id}, {require: false, transacting: t});
+
+        let updateUser = new User({id: params.id})
+                            .save(userDefinition,{
+                              transacting: t,
+                              method: 'update',
+                              require: true
+                            });
+
+        let removeEmails = updateUser.then(function(user) {
+          return UserEmail
+            .query(function(qb) {
+              qb.where('user_id', '=', user.id)
+                .andWhere('email', 'NOT IN', emailList)
+            })
+            .destroy({transacting: t})
+            .then(function() {
+              return Promise.resolve(user);
+            })
+        });
+
+        let validateEmails = removeEmails.then(function(user) {
+          return UserEmail.where('email','IN',emailList)
+            .fetchAll(null, {transacting: t})
+            .then(function(emails) {
+              emails = emails.serialize();
+              //make sure we don't have somebody else's email address
+              let otherPeoplesEmails = _.filter(emails, function(email) {
+                return Number(email.user_id) !== Number(user.id);
+              });
+              if(otherPeoplesEmails.length > 0) {
+                return Promise.reject(new Error('Cannot assign another user\'s email address to this account'));
+              } else {
+                //remove the results from my list. Don't need to update what's already there
+                emailList = _.difference(emailList, emails.map(function(e) {
+                  return e.email;
+                }));
+                return Promise.resolve(user);
+              }
             });
+        });
+
+        let updateEmails = validateEmails.then(function(user) {
+          return Promise.map(emailList, function(email) {
+            // we are *not* removing emails on this update
+            //Make sure we're not playing the email-stealing game here:
+            return new UserEmail({'email': email}).save({'user_id': user.id}, {method: 'insert', require: true, transacting: t})
+              .then(function(result) {
+                Promise.resolve(result);
+              });
+          }).then(function() {
+            return Promise.resolve(user);
           });
+        });
+
+        return updateEmails;
+
       }).then(function(user) {
         // console.info("USER", user);
-        res.json(user);
+        user.load({'emails':userEmailAggregation}).then(function(user) {
+          res.json(prepUserForResponse(user.serialize()));
+        }).catch(function(err) {
+          next(err);
+        });
+        // res.json(user);
       }).catch(function(err) {
         console.error('error!');
         next(err);

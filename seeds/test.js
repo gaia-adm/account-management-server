@@ -35,7 +35,7 @@ exports.seed = function(knex, Promise) {
           knex('xref_user_emails').insert({user_id:43,email:'richardjplotkin@gmail.com'}),
           knex('xref_user_emails').insert({user_id:44,email:'richard@richardplotkin.com'}),
           knex('xref_user_emails').insert({user_id:45,email:'emilykplotkin@gmail.com'}),
-          knex('xref_user_emails').insert({user_id:1010,email:'alexei.ledenev@hpe.com'}),
+          knex('xref_user_emails').insert({user_id:1010,email:'alexei.led@gmail.com'}),
           knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:2}),
           knex('xref_user_account_roles').insert({user_id:42,account_id:36,role_id:3}),
           knex('xref_user_account_roles').insert({user_id:43,account_id:36,role_id:1}),
