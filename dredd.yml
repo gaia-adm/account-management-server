@@ -10,7 +10,7 @@ custom:
 names: false
 only: []
 reporter: markdown
-output: [reports/dredd.md]
+output: []
 header: []
 sorted: false
 user: null
