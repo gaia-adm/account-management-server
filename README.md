@@ -4,6 +4,7 @@ This app is build in [NodeJS](https://nodejs.org), with an [Express](https://exp
 
 ## Setup for development
 1. Install PostgreSQL (the site was developed with 9.5, but anything >=9.1 should work)
+    - you should use the gaia-account-management-db project for setting this up
 2. Install [NodeJS](https://nodejs.org), which includes the [npm](https://www.npmjs.com/) package manager.
 3. Install global dependencies. These can all be installed *without* the global option, but are easier to develop with when done globally. (Install at once: ```npm install -g knex mocha dredd aglio```)  
     1. ```npm install -g knex```
@@ -35,6 +36,27 @@ This app is build in [NodeJS](https://nodejs.org), with an [Express](https://exp
     1. Copy ./.env.default to ./.env and set up appropriate variables
     2. If you choose to use the database named "hpe_account_management," create a DB of that name in your local PostgreSQL instance
     3. Copy ./client/.env.default to ./client/.env and set up appropriate variables
+6. INVITATIONS
+    - If you need to customize the invitation email:
+    - ./views/invitation.pug is the template
+    - ./routes/accounts has a method at the top called ```sendInvitation```
+
+## Environment
+- You should be able to keep the DB_DATABASE, DB_USER, and DB_PASSWORD as is in most situations where the DB is set up as planned.
+- DB_HOST needs to be set properly (default DB_HOST=localhost)
+- BACKEND_HOST and BACKEND_PORT determine the host and port of this server setup (default BACKEND_HOST=localhost BACKEND_PORT=3000)
+- CLIENT_HOST and CLIENT_PORT should reference the host and port of the client app (default CLIENT_HOST=localhost CLIENT_PORT=8080)
+- MAILGUN: For a default environment, you *must* set up your own mailgun account, which will allow you to have 5 email addresses for testing.
+    - The site is agnostic, with respect to SMTP, so any SMTP account will ultimately work
+    - INVITATION_EMAIL_FROM (whoever the sender is for invitations; default INVITATION_EMAIL_FROM=\[a mailgun email\])
+    - SMTP_HOST, SMTP_USERNAME, and SMTP_PASSWORD must be set
+
+## Commands
+- ```npm start``` Production start.
+- ```npm run start:dev``` Starts the nodemon server, which restarts the server when a file changes.
+- ```npm test``` Runs the mocha tests in the test environment
+- ```npm run doc``` Creates a fresh version of the API documentation from the api-blueprint markdown file.
+- ```npm run dredd``` Runs API tests with dredd test runner, using the test environment.
 
 ## Docker
 - ```docker-compose up``` will start three containers: db, backend, and client

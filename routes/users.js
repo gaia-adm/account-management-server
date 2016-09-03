@@ -12,8 +12,6 @@ const UserEmail = require('../models/userEmails');
 const ERRORS = require('./errors');
 
 const isSuperuser = function(req, res, next) {
-  console.log('******* SUPERUSER? *********');
-  console.log(req.user);
   if(!req.userIs('superuser')) {
     return next(ERRORS.NOT_AUTHORIZED);
   }

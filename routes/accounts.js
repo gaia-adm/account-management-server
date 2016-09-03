@@ -297,15 +297,6 @@ router.route('/:id/invitations')
       }
 
       //check if the email already represents an account user
-      /**
-       SELECT xref_user_account_roles.account_id, xref_user_emails.email
-       FROM users
-       INNER JOIN xref_user_emails ON xref_user_emails.user_id = users.id
-       INNER JOIN xref_user_account_roles ON xref_user_account_roles.user_id = users.id
-       WHERE xref_user_emails.email = 'richardjplotkin@gmail.com'
-       GROUP BY xref_user_account_roles.account_id, users.id, xref_user_emails.email
-       **/
-
       let emailHasAccess = UserAccountRole.query(
         function(qb) {
           qb.column([

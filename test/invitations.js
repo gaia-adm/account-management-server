@@ -70,7 +70,6 @@ describe("Invitations:", () => {
   describe('Inviting a user by email address', () => {
 
     before((done) => {
-      console.info('before');
       AccountInvitations
         .where({email: invitedUserEmail})
         .destroy()

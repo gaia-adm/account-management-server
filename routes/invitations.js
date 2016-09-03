@@ -174,7 +174,6 @@ router.route('/return.google')
 router.route('/:invitation_uuid')
   .get(
     function(req, res, next) {
-      console.info('blech');
       let invitation = _.pick(req.invitation.serialize(), ['uuid', 'email']);
 
       return res.status(200).json(invitation);
