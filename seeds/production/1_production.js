@@ -3,6 +3,7 @@ exports.seed = function(knex, Promise) {
   return Promise.all([
       knex('users').where('id','IN', [1,2,3,4,5]).del(),
       knex('xref_user_emails').where('email','IN',['alexei.ledenev@hpe.com', 'alexei.led@gmail.com']),
+      knex('xref_user_emails').where('email','IN',['gaiaadmservice@gmail.com']),
       knex('xref_user_emails').where('email','IN',['richard.plotkin@toptal.com', 'richardjplotkin@gmail.com','richard@richardplotkin.com','emilykplotkin@gmail.com']),
       knex('roles').del()
     ])
@@ -15,6 +16,7 @@ exports.seed = function(knex, Promise) {
 
         //Superusers for HPE
         knex('users').insert({id: 1, firstName: 'Alexei', lastName: 'Ledenev', isSuperuser: true, isAdmin: true}),
+        knex('users').insert({id: 10, firstName: 'Gaia', lastName: 'Team', isSuperuser: true, isAdmin: true}),
 
         //USER 42 is a SUPERUSER
         knex('users').insert({id: 2, firstName: 'Awesome', lastName: 'Superuser', isSuperuser: true, isAdmin: true}),
@@ -34,6 +36,8 @@ exports.seed = function(knex, Promise) {
           //Superusers for HPE
           knex('xref_user_emails').insert({user_id:1,email:'alexei.ledenev@hpe.com'}),
           knex('xref_user_emails').insert({user_id:1,email:'alexei.led@gmail.com'}),
+
+          knex('xref_user_emails').insert({user_id:10,email:'gaiaadmservice@gmail.com'}),
 
           knex('xref_user_emails').insert({user_id:2,email:'richard.plotkin@toptal.com'}),
           knex('xref_user_emails').insert({user_id:3,email:'richardjplotkin@gmail.com'}),
