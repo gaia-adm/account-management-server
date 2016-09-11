@@ -91,4 +91,5 @@ function onListening() {
     app.set('address', addr);
     app.set('port', port);
   debug('Listening on ' + bind);
+  console.log('Listening on ' + bind)
 }
