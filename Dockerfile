@@ -4,6 +4,10 @@ FROM mhart/alpine-node:4.4.7
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
+ARG PROXY_URL
+RUN npm config set proxy $PROXY_URL
+RUN npm config set https-proxy $PROXY_URL
+
 # set Node to production
 ARG NODE=production
 ENV NODE_ENV ${NODE}
@@ -21,5 +25,8 @@ COPY . /usr/src/app
 COPY ./.env.default /usr/src/app/.env
 
 EXPOSE 3000
+
+RUN npm config delete proxy
+RUN npm config delete https-proxy
 
 CMD [ "node", "./bin/www" ]
