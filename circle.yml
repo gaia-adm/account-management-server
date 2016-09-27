@@ -12,10 +12,10 @@ dependencies:
   pre:
     - sudo apt-get update && sudo apt-get install
   override:
-    # build production image
-    - docker build -t gaiaadm/acmserver .
     # build test image
     - docker build -t gaiaadm/acmserver:test --build-arg "NODE=test" .
+    # build production image
+    - docker build -t gaiaadm/acmserver .
     # tag production image with build build labels
     - docker tag gaiaadm/acmserver gaiaadm/acmserver:$CIRCLE_BUILD_NUM-$CIRCLE_BRANCH
     - docker tag gaiaadm/acmserver gaiaadm/acmserver:$CIRCLE_BRANCH
@@ -23,10 +23,10 @@ database:
   override:
     - createuser -s -d hpe_account_management
     - createdb hpe_account_management
-    - docker run --rm -it --add-host=docker:$(hostip)  gaiaadm/acmserver:$CIRCLE_BUILD_NUM-$CIRCLE_BRANCH 'knex migrate:latest --env test'
+    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) gaiaadm/acmserver:test 'knex migrate:latest --env test'
 #    - knex seed:latest --env production
 test:
   override:
-    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e NODE_ENV=test gaiaadm/acmserver:test 'knex migrate:latest --env test'
-    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e NODE_ENV=test gaiaadm/acmserver:test 'npm test'
-    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e NODE_ENV=test gaiaadm/acmserver:test 'NODE_ENV=test dredd'
+    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) gaiaadm/acmserver:test 'knex migrate:latest --env test'
+    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) gaiaadm/acmserver:test 'npm test'
+    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) gaiaadm/acmserver:test 'NODE_ENV=test dredd'
