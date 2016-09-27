@@ -23,7 +23,8 @@ database:
   override:
     - createuser -s -d hpe_account_management
     - createdb hpe_account_management
-    - knex migrate:latest --env production
+    - hostip=$(ip route show 0.0.0.0/0 | grep -Eo 'via \S+' | awk '{ print $2 }')
+    - docker run --rm -it --add-host=docker:$(hostip)  gaiaadm/acmserver:$CIRCLE_BUILD_NUM-$CIRCLE_BRANCH 'knex migrate:latest --env test'
 #    - knex seed:latest --env production
 test:
   override:
