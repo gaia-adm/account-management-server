@@ -8,8 +8,8 @@ module.exports = {
     connection: {
       host:     process.env.DB_HOST,
       database: 'hpe_account_management_test',
-      // user:     'hpe_account_management_test',
-      // password: 'password'
+      user:     'hpe_account_management_test',
+      password: 'hpe_account_management_test'
     },
     migrations: {
       tableName: 'knex_migrations'

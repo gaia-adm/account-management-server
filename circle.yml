@@ -1,14 +1,31 @@
 machine:
+  pre:
+    - echo 'DOCKER_OPTS="-s btrfs -e lxc -D --userland-proxy=false"' | sudo tee -a /etc/default/docker
+    - sudo curl -L -o /usr/bin/docker 'https://s3-external-1.amazonaws.com/circle-downloads/docker-1.9.1-circleci-cp-workaround'
+    - sudo chmod 0755 /usr/bin/docker
   node:
     version: 4.4.6
   services:
     - postgresql
     - docker
+dependencies:
+  pre:
+    - sudo apt-get update && sudo apt-get install
+  override:
+    # temporary
+    - npm install
+    # build production mode image
+    - docker build -t gaiaadm/acmserver .
+    # tag production image with build build labels
+    - docker tag gaiaadm/acmserver gaiaadm/acmserver:$CIRCLE_BUILD_NUM-$CIRCLE_BRANCH
+    - docker tag gaiaadm/acmserver gaiaadm/acmserver:$CIRCLE_BRANCH
 database:
   override:
-    - createuser -s -d hpe_account_management_test
-    - createdb hpe_account_management_test
-    - knex migrate:latest --env test
+    - createuser -s -d hpe_account_management
+    - createdb hpe_account_management
+    - knex migrate:latest --env production
+#    - knex seed:latest --env production
 test:
-  pre:
+  override:
+    - npm test
     - NODE_ENV=test dredd
