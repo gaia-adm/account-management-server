@@ -7,6 +7,8 @@ WORKDIR /usr/src/app
 ARG PROXY_URL
 RUN npm config set proxy $PROXY_URL
 RUN npm config set https-proxy $PROXY_URL
+# RUN npm config set registry http://registry.npmjs.org/
+RUN npm set progress=false
 
 # set Node to production
 ARG NODE=production
