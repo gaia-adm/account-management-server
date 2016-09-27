@@ -15,7 +15,7 @@ ARG NODE=production
 ENV NODE_ENV ${NODE}
 
 RUN apk add --no-cache --virtual \
-    bash \
+    bash git python \
   && rm -rf /var/cache/apk/*
 
 # Install app dependencies
