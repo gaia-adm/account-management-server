@@ -12,10 +12,10 @@ dependencies:
   pre:
     - sudo apt-get update && sudo apt-get install
   override:
-    # build test image
-    - docker build -t gaiaadm/acmserver:test --build-arg "NODE=test" .
     # build production image
     - docker build -t gaiaadm/acmserver .
+    # build test image
+    - docker build -t gaiaadm/acmserver:test --build-arg "NODE=test" .
     # tag production image with build build labels
     - docker tag gaiaadm/acmserver gaiaadm/acmserver:$CIRCLE_BUILD_NUM-$CIRCLE_BRANCH
     - docker tag gaiaadm/acmserver gaiaadm/acmserver:$CIRCLE_BRANCH
@@ -27,6 +27,6 @@ database:
 #    - knex seed:latest --env production
 test:
   override:
-    - docker run --rm -it -e DB_HOST=$(ip route show 0.0.0.0/0 | grep -Eo 'via \S+' | awk '{ print $2 }') -e NODE_ENV=test gaiaadm/acmserver:test 'knex migrate:latest --env test'
-    - docker run --rm -it -e DB_HOST=$(ip route show 0.0.0.0/0 | grep -Eo 'via \S+' | awk '{ print $2 }') -e NODE_ENV=test gaiaadm/acmserver:test 'npm test'
-    - docker run --rm -it -e DB_HOST=$(ip route show 0.0.0.0/0 | grep -Eo 'via \S+' | awk '{ print $2 }') -e NODE_ENV=test gaiaadm/acmserver:test 'NODE_ENV=test dredd'
+    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e NODE_ENV=test gaiaadm/acmserver:test 'knex migrate:latest --env test'
+    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e NODE_ENV=test gaiaadm/acmserver:test 'npm test'
+    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e NODE_ENV=test gaiaadm/acmserver:test 'NODE_ENV=test dredd'
