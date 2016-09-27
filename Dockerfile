@@ -22,7 +22,7 @@ RUN apk add --no-cache bash python git \
 
 # Install app dependencies
 COPY package.json /tmp/package.json
-RUN cd /tmp && npm install && cp -a /tmp/node_modules /usr/src/app/ && rm -rf /tmp/* && npm install -g knex
+RUN cd /tmp && npm install && cp -a /tmp/node_modules /usr/src/app/ && rm -rf /tmp/* && npm install -g knex dredd
 
 # Bundle app source
 COPY . /usr/src/app
