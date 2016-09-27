@@ -26,5 +26,5 @@ database:
 test:
   override:
     - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) gaiaadm/acmserver:test knex migrate:latest --env test
-    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) gaiaadm/acmserver:test npm test
-    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) gaiaadm/acmserver:test dredd
+    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e DB_DATABASE=hpe_account_management_test -e DB_USER=hpe_account_management_test gaiaadm/acmserver:test npm test
+    - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e DB_DATABASE=hpe_account_management_test -e DB_USER=hpe_account_management_test gaiaadm/acmserver:test dredd
