@@ -1,3 +1,7 @@
+[![CircleCI](https://circleci.com/gh/gaia-adm/gaia-account-management-server.svg?style=svg)](https://circleci.com/gh/gaia-adm/gaia-account-management-server)
+
+
+
 # gaia-account-management
 
 This app is build in [NodeJS](https://nodejs.org), with an [Express](https://expressjs.com)-based api and a PostgreSQL database.

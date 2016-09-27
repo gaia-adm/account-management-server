@@ -28,3 +28,14 @@ test:
     - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) gaiaadm/acmserver:test knex migrate:latest --env test
     - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e DB_DATABASE=hpe_account_management_test -e DB_USER=hpe_account_management_test -e INVITATION_EMAIL_FROM=postmaster@sandboxa9f9485dbc6b4430ac6a6ccef0ea6272.mailgun.org -e SMTP_PASSWORD=$SMTP_PASSWORD -e SMTP_USERNAME=postmaster@sandboxa9f9485dbc6b4430ac6a6ccef0ea6272.mailgun.org gaiaadm/acmserver:test npm test
     - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e DB_DATABASE=hpe_account_management_test -e DB_USER=hpe_account_management_test -e INVITATION_EMAIL_FROM=postmaster@sandboxa9f9485dbc6b4430ac6a6ccef0ea6272.mailgun.org -e SMTP_PASSWORD=$SMTP_PASSWORD -e SMTP_USERNAME=postmaster@sandboxa9f9485dbc6b4430ac6a6ccef0ea6272.mailgun.org gaiaadm/acmserver:test dredd
+deployment:
+  continuous:
+    branch: [master, develop, /.*feature_.*/]
+    commands:
+      # login to DockerHub
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      # push production image
+      - docker push gaiaadm/acmserver
+notify:
+  webhooks:
+    - url: https://webhook.master.gaiahub.io/wh/5a866f9b-98c9-438d-a8d4-53cf4ae9599c/4c310c8e220ee9bead74eece42ce0e109fd3535e
