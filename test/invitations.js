@@ -78,10 +78,12 @@ describe("Invitations:", () => {
         });
     });
 
-    it('should create an account invitation', (done) => {
+    it('should create an account invitation', function(done) {
+      this.timeout(20000);
       request(app)
         .post('/api/accounts/' + seededAccountId + '/invitations')
         .set('Cookie', 'token='+token)
+        .timeout(15000)
         .send({
           email   : invitedUserEmail,
           role_ids: invitedUserRoles
@@ -154,7 +156,7 @@ describe("Invitations:", () => {
     it('should fail validation if the invitation uuid is invalid', (done) => {
       let badRequest = _.cloneDeep(req);
       badRequest.query.state = randomUuid;
-      let doValidation = validateInvitation(badRequest, null, null, profile, emptyFn)
+      let doValidation = validateInvitation(badRequest, null, null, profile, emptyFn);
       expect(doValidation).to.eventually.be.rejectedWith(CONSTANTS.INVITATION_NOT_FOUND).notify(done);
     });
 
