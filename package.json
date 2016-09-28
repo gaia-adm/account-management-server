@@ -7,7 +7,7 @@
     "start:debug": "node %NODE_DEBUG_OPTION% ./bin/www",
     "start:dev": "nodemon ./bin/www",
     "pretest": "knex seed:run --env=test",
-    "test": "NODE_ENV=test mocha",
+    "test": "NODE_ENV=test mocha -R mocha-junit-reporter",
     "doc": "aglio -i api-blueprint/api-description.apib -o api-blueprint/api.html",
     "dredd": "NODE_ENV=test dredd"
   },

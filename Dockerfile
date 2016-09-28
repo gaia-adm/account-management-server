@@ -16,7 +16,7 @@ RUN npm set progress=false
 ARG NODE=production
 ENV NODE_ENV ${NODE}
 
-RUN apk update
+#RUN apk update
 RUN apk add --no-cache bash python git \
   && rm -rf /var/cache/apk/*
 
