@@ -27,7 +27,7 @@ test:
   override:
     - docker run --rm -it -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) gaiaadm/acmserver:test knex migrate:latest --env test
     - docker run -it --name test-runner -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e DB_DATABASE=hpe_account_management_test -e DB_USER=hpe_account_management_test -e INVITATION_EMAIL_FROM=postmaster@sandboxa9f9485dbc6b4430ac6a6ccef0ea6272.mailgun.org -e SMTP_PASSWORD=$SMTP_PASSWORD -e SMTP_USERNAME=postmaster@sandboxa9f9485dbc6b4430ac6a6ccef0ea6272.mailgun.org gaiaadm/acmserver:test npm test
-    - docker cp test-runner:/src/test-results.xml $CIRCLE_TEST_REPORTS
+    - docker cp test-runner:/usr/src/app/test-results.xml $CIRCLE_TEST_REPORTS
     - docker run -it --name dredd-runner -e DB_HOST=$(ifconfig eth0 | grep "inet addr" | tr -s ' ' | cut -d ' ' -f 3 | cut -d ':' -f 2) -e DB_DATABASE=hpe_account_management_test -e DB_USER=hpe_account_management_test -e INVITATION_EMAIL_FROM=postmaster@sandboxa9f9485dbc6b4430ac6a6ccef0ea6272.mailgun.org -e SMTP_PASSWORD=$SMTP_PASSWORD -e SMTP_USERNAME=postmaster@sandboxa9f9485dbc6b4430ac6a6ccef0ea6272.mailgun.org gaiaadm/acmserver:test dredd
 deployment:
   continuous:
