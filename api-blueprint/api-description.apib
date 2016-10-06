@@ -7,7 +7,7 @@ The HPE Account Management API
 
 Resources related to users
 
-## User Collection [/api/users]
+## User Collection [/acms/api/users]
 
 ### List All Users [GET]
 + Request
@@ -93,7 +93,7 @@ Resources related to users
             {"message": "Unauthorized"}
 
 
-## User [/api/users/self]
+## User [/acms/api/users/self]
 
 Yourself.
 
@@ -216,7 +216,7 @@ Yourself.
 
             {"message": "Unauthorized"}
 
-## User [/api/users/{id}]
+## User [/acms/api/users/{id}]
 
 A single user.
 
@@ -350,7 +350,7 @@ one user's email address must be removed before the other gets to add it.
 # Group Accounts
 Resources related to accounts
 
-## Account Collection [/api/accounts]
+## Account Collection [/acms/api/accounts]
 
 ### List All Accounts [GET]
 
@@ -418,7 +418,7 @@ Resources related to accounts
 
             {"message": "Unauthorized"}
 
-## Account [/api/accounts/{id}]
+## Account [/acms/api/accounts/{id}]
 
 A single account.
 
@@ -527,7 +527,7 @@ The supplied list of users replaces the existing list of users. User ID and Role
 
             {"message": "Unauthorized"}
 
-## Account Invitations [/api/accounts/{id}/invitations]
+## Account Invitations [/acms/api/accounts/{id}/invitations]
 
 ### Create An Invitation [POST]
 
@@ -567,7 +567,7 @@ The supplied list of users replaces the existing list of users. User ID and Role
 
             {"message": "Unauthorized"}
 
-## Account Invitations [/api/invitations/{uuid}]
+## Account Invitations [/acms/api/invitations/{uuid}]
 
 ### Revoke An Invitation [DELETE]
 
@@ -591,7 +591,7 @@ The supplied list of users replaces the existing list of users. User ID and Role
 
             {"message": "Unauthorized"}
 
-## Account Users [/api/accounts/{id}/users/{userId}]
+## Account Users [/acms/api/accounts/{id}/users/{userId}]
 
 ### Add a Single User to an Account [POST]
 

@@ -28,13 +28,13 @@ describe('Error conditions on /accounts', function() {
   describe('Account Collection [GET]', ()=> {
     it('should fail with a duplicate account name', function(done) {
       request(app)
-        .post('/api/accounts')
+        .post('/acms/api/accounts')
         .set('Cookie', 'token='+token)
         .send(accountData)
         .expect(200)
         .end(function(err, res) {
           request(app)
-            .post('/api/accounts')
+            .post('/acms/api/accounts')
             .set('Cookie', 'token='+token)
             .send(accountData)
             .expect(400)
@@ -48,7 +48,7 @@ describe('Error conditions on /accounts', function() {
       let data = _.clone(accountData);
       data.users = {};
       request(app)
-        .put('/api/accounts/37')
+        .put('/acms/api/accounts/37')
         .set('Cookie', 'token='+token)
         .send(data)
         .expect(ROUTE_ERRORS.ACCOUNT_UPDATE_REQUIRES_USERS.status)

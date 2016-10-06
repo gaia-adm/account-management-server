@@ -81,7 +81,7 @@ describe("Invitations:", () => {
     it('should create an account invitation', function(done) {
       this.timeout(20000);
       request(app)
-        .post('/api/accounts/' + seededAccountId + '/invitations')
+        .post('/acms/api/accounts/' + seededAccountId + '/invitations')
         .set('Cookie', 'token='+token)
         .timeout(15000)
         .send({
@@ -98,7 +98,7 @@ describe("Invitations:", () => {
     it('should fail to create an invitation if the user is already able to access the account', (done) => {
       //add the user to the account
       request(app)
-        .post('/api/accounts/' + seededAccountId + '/invitations')
+        .post('/acms/api/accounts/' + seededAccountId + '/invitations')
         .set('Cookie', 'token='+token)
         .send({
           email   : existingUserEmail,

@@ -101,11 +101,11 @@ mailer.extend(app, {
   }
 });
 
-app.use('/', routes);
-app.use('/auth', auth);
-app.use('/api/users', users);
-app.use('/api/accounts', accounts);
-app.use('/api/invitations', invitations);
+app.use('/acms/', routes);
+app.use('/acms/auth', auth);
+app.use('/acms/api/users', users);
+app.use('/acms/api/accounts', accounts);
+app.use('/acms/api/invitations', invitations);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

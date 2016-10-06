@@ -1,9 +1,7 @@
 .git
 .gitignore
 README.md
-Dockerfile
 _notes
-**/Dockerfile
 /client/.env
 /.env
 node_modules
