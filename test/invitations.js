@@ -82,7 +82,7 @@ describe("Invitations:", () => {
       this.timeout(20000);
       request(app)
         .post('/acms/api/accounts/' + seededAccountId + '/invitations')
-        .set('Cookie', 'token='+token)
+        .set('Cookie', 'gaia.token='+token)
         .timeout(15000)
         .send({
           email   : invitedUserEmail,
@@ -99,7 +99,7 @@ describe("Invitations:", () => {
       //add the user to the account
       request(app)
         .post('/acms/api/accounts/' + seededAccountId + '/invitations')
-        .set('Cookie', 'token='+token)
+        .set('Cookie', 'gaia.token='+token)
         .send({
           email   : existingUserEmail,
           role_ids: invitedUserRoles

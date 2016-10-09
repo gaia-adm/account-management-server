@@ -69,7 +69,7 @@ hooks.beforeEach(function (transaction) {
 
   if(typeof(transaction.request.headers) === 'object' &&
     transaction.request.headers.Authorization !== undefined) {
-    transaction.request['headers']['Cookie'] = "token=" + supplyAuthToken(transaction.request.headers.Authorization);
+    transaction.request['headers']['Cookie'] = "gaia.token=" + supplyAuthToken(transaction.request.headers.Authorization);
     delete(transaction.request['headers']['Authorization']);
   }
 

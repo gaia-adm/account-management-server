@@ -65,7 +65,7 @@ const resolveUserJWT = function(req, res) {
   let token = jwt.sign({id: user.id}, config.get('secret'), {
     expiresIn: '365d'
   });
-  res.cookie('token', token, {
+  res.cookie('gaia.token', token, {
     httpOnly: true
   });
   res.json({ success: true, user: user});

@@ -29,13 +29,13 @@ describe('Error conditions on /accounts', function() {
     it('should fail with a duplicate account name', function(done) {
       request(app)
         .post('/acms/api/accounts')
-        .set('Cookie', 'token='+token)
+        .set('Cookie', 'gaia.token='+token)
         .send(accountData)
         .expect(200)
         .end(function(err, res) {
           request(app)
             .post('/acms/api/accounts')
-            .set('Cookie', 'token='+token)
+            .set('Cookie', 'gaia.token='+token)
             .send(accountData)
             .expect(400)
             .end(done);
@@ -49,7 +49,7 @@ describe('Error conditions on /accounts', function() {
       data.users = {};
       request(app)
         .put('/acms/api/accounts/37')
-        .set('Cookie', 'token='+token)
+        .set('Cookie', 'gaia.token='+token)
         .send(data)
         .expect(ROUTE_ERRORS.ACCOUNT_UPDATE_REQUIRES_USERS.status)
         .end(function(err, res) {

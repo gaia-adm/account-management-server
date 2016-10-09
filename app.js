@@ -31,7 +31,7 @@ ExtractJwt.fromCookie = function() {
     var token = null;
     if (req && req.cookies)
     {
-      token = req.cookies['token'];
+      token = req.cookies['gaia.token'];
     }
     // console.info('my token', token);
     return token;
