@@ -1,0 +1,49 @@
+[Unit]
+Description=Gaia Account Management Server
+Documentation=https://github.com/gaia-adm/gaia-account-management-server
+After=registrator.service
+Wants=registrator.service
+
+[Service]
+TimeoutStartSec=20min
+TimeoutStopSec=15
+KillMode=none
+
+EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/env-acm
+
+Restart=on-failure
+RestartSec=20s
+
+ExecStartPre=-/usr/bin/docker stop acmserver
+ExecStartPre=-/usr/bin/docker rm acmserver
+ExecStart=/bin/bash -a -c '/usr/bin/docker run  \
+--name acmserver  \
+-p 3100:3000  \
+-e DB_HOST=$DB_HOST  \
+-e DB_DATABASE=$DB_DATABASE  \
+-e DB_USER=$DB_USER  \
+-e DB_PASSWORD=$DB_PASSWORD  \
+-e BACKEND_HOST=localhost  \
+-e BACKEND_PORT=3000  \
+-e CLIENT_HOST=localhost  \
+-e CLIENT_PORT=8080  \
+-e INVITATION_EMAIL_FROM=$MAILGUN_ACCOUNT  \
+-e SMTP_HOST=smtp.mailgun.org  \
+-e SMTP_USERNAME=$MAILGUN_ACCOUNT  \
+-e SMTP_PASSWORD=$SMTP_PASSWORD  \
+-e SERVICE_NAME=acmserver  \
+-e SERVICE_TAGS=master  \
+-e GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID \
+-e GOOGLE_CLIENT_PASSWORD=$GOOGLE_CLIENT_PASSWORD \
+-e LOG_LEVEL=DEBUG  \
+gaiaadm/acmserver'
+
+ExecStop=/usr/bin/docker stop acmserver
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+Global=true
+MachineMetadata=general=true

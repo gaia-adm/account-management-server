@@ -11,6 +11,8 @@ machine:
 dependencies:
   pre:
     - sudo apt-get update && sudo apt-get install
+    # download update_service script
+    - curl -LO https://raw.githubusercontent.com/gaia-adm/gaia-fleet/master/update_service.sh && chmod +x update_service.sh
   override:
     # build test image
     - docker build -t gaiaadm/acmserver:test --build-arg "NODE=test" .
@@ -37,6 +39,7 @@ deployment:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       # push production image
       - docker push gaiaadm/acmserver
+      - ./update_service.sh -t $CIRCLE_BRANCH -b $CIRCLE_BUILD_NUM -f acm-service.service -n acmservice
 notify:
   webhooks:
     - url: https://webhook.master.gaiahub.io/wh/5a866f9b-98c9-438d-a8d4-53cf4ae9599c/4c310c8e220ee9bead74eece42ce0e109fd3535e
