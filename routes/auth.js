@@ -77,6 +77,9 @@ passport.use('google', new GoogleStrategy({
     clientSecret: config.get('authentication.googleStrategy.clientSecret'),
     callbackURL: config.get('authentication.googleStrategy.callbackURL'),
   },
+    new function LogMyClientForEasierDebugging(){
+      console.log('My Client ID is ' + config.get('authentication.googleStrategy.clientId').substring(0,8))
+    },
   validateUserCallback)
 );
 
