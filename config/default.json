@@ -6,8 +6,8 @@
   "secret": "No more secrets.",
   "authentication": {
     "googleStrategy": {
-      "clientId": "632505077105-r5u4sst6flni4k6a6sud8gb4g9tf0r58.apps.googleusercontent.com",
-      "clientSecret": "zk_HzVaXYjoZnQx-pDWc7X3_",
+      "clientId": "foo",
+      "clientSecret": "boo",
       "callbackURL": "http://localhost:3000/acmc/auth/google/return",
       "invitationCallbackURL": "http://localhost:3000/acms/api/invitations/return.google"
     }
