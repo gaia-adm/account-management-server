@@ -20,10 +20,10 @@ ExecStartPre=-/usr/bin/docker rm acmserver
 ExecStart=/bin/bash -a -c '/usr/bin/docker run  \
 --name acmserver  \
 -p 3100:3000  \
--e DB_HOST=${DB_HOST}  \
--e DB_DATABASE=${DB_DATABASE}  \
--e DB_USER=${DB_USER}  \
--e DB_PASSWORD=${DB_PASSWORD}  \
+-e DB_HOST=postgres.skydns.local  \
+-e DB_DATABASE=hpe_account_management  \
+-e DB_USER=hpe_account_management  \
+-e DB_PASSWORD=${ACM_DB_PASSWORD}  \
 -e BACKEND_HOST=localhost  \
 -e BACKEND_PORT=3000  \
 -e CLIENT_HOST=localhost  \
@@ -35,7 +35,7 @@ ExecStart=/bin/bash -a -c '/usr/bin/docker run  \
 -e SERVICE_NAME=acmserver  \
 -e SERVICE_TAGS=master  \
 -e GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID} \
--e GOOGLE_CLIENT_PASSWORD=${GOOGLE_CLIENT_PASSWORD} \
+-e GOOGLE_CLIENT_PASSWORD=${GOOGLE_CLIENT_SECRET} \
 -e LOG_LEVEL=DEBUG  \
 gaiaadm/acmserver'
 
