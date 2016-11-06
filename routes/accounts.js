@@ -23,7 +23,7 @@ const sendInvitation = function(req, uuid, recipient) {
   }, {
     to     : recipient, // REQUIRED. This can be a comma delimited string just like a normal email to field.
     subject: 'HPE Account Invitation', // REQUIRED.
-    path   : 'http://' + process.env.CLIENT_HOST + ':' + process.env.CLIENT_PORT + '/acmc/invitations/' + uuid
+    path   : 'https://' + process.env.CLIENT_HOST + ':' + process.env.CLIENT_PORT + '/acmc/invitations/' + uuid
   });
 };
 
