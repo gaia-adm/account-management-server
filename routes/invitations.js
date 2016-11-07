@@ -115,6 +115,7 @@ passport.use('google-invitation', new GoogleStrategy({
     passReqToCallback: true
   },
   function(req, accessToken, refreshToken, profile, next) {
+    console.log('BORIS invitations-118: ' + req.protocol + '://' + req.get('host') + req.originalUrl);
     validateInvitation(req, accessToken, refreshToken, profile, next)
       .then(function (result) {
         console.info('invitation validated');
@@ -122,6 +123,7 @@ passport.use('google-invitation', new GoogleStrategy({
       })
       .catch(function (error) {
         console.info('invitation not validated');
+        console.log('BORIS invitations-126: ' + JSON.stringify(error));
         if (_.isString(error)) {
           var e = new Error(error);
           e.status = 400;
@@ -134,6 +136,7 @@ passport.use('google-invitation', new GoogleStrategy({
 
 /* Single Invitation */
 router.param('invitation_uuid', function(req, res, next, invitation_uuid) {
+  console.log('BORIS invitations-139: ' + req.protocol + '://' + req.get('host') + req.originalUrl);
   AccountInvitations
     .where({uuid: req.params.invitation_uuid})
     .fetch()
@@ -150,6 +153,10 @@ router.param('invitation_uuid', function(req, res, next, invitation_uuid) {
 
 router.route('/return.google')
   .get(
+      function (req) {
+        console.log('BORIS invitations-156: ' + req.protocol + '://' + req.get('host') + req.originalUrl);
+        next();
+      },
     passport.authenticate('google-invitation', {
       session: false,
       failureRedirect: '/login',
@@ -160,6 +167,7 @@ router.route('/return.google')
         let message = err;
         let status  = err.status;
         console.info({message, status});
+        console.log('BORIS invitations-166: ' + JSON.stringify(error));
         return res.render('invitation-validation', {message, status});
       }
     },
