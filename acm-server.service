@@ -19,14 +19,14 @@ ExecStartPre=-/usr/bin/docker stop acmserver
 ExecStartPre=-/usr/bin/docker rm acmserver
 ExecStartPre=/bin/bash -a -c '/usr/bin/docker run  \
 --rm  \
--e DB_HOST=postgres.skydns.local  \
+-e DB_HOST=${DB_ALIAS}  \
 -e DB_DATABASE=hpe_account_management  \
 -e DB_USER=hpe_account_management  \
 -e DB_PASSWORD=${ACM_DB_PASSWORD}  \
 gaiaadm/acmserver knex migrate:latest --env=production'
 ExecStartPre=-/bin/bash -a -c '/usr/bin/docker run  \
 --rm  \
--e DB_HOST=postgres.skydns.local  \
+-e DB_HOST=${DB_ALIAS}  \
 -e DB_DATABASE=hpe_account_management  \
 -e DB_USER=hpe_account_management  \
 -e DB_PASSWORD=${ACM_DB_PASSWORD}  \
@@ -34,7 +34,7 @@ gaiaadm/acmserver knex seed:run --env=production'
 ExecStart=/bin/bash -a -c '/usr/bin/docker run  \
 --name acmserver  \
 -p 3100:3000  \
--e DB_HOST=postgres.skydns.local  \
+-e DB_HOST=${DB_ALIAS}  \
 -e DB_DATABASE=hpe_account_management  \
 -e DB_USER=hpe_account_management  \
 -e DB_PASSWORD=${ACM_DB_PASSWORD}  \
