@@ -166,8 +166,7 @@ router.route('/return.google')
       if(err) {
         let message = err;
         let status  = err.status;
-        console.info({message, status});
-        console.log('BORIS invitations-166: ' + JSON.stringify(error));
+        console.info(JSON.stringify(message));
         return res.render('invitation-validation', {message, status});
       }
     },
