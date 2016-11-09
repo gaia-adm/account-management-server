@@ -153,10 +153,6 @@ router.param('invitation_uuid', function(req, res, next, invitation_uuid) {
 
 router.route('/return.google')
   .get(
-      function (req) {
-        console.log('BORIS invitations-156: ' + req.protocol + '://' + req.get('host') + req.originalUrl);
-          next();
-      },
     passport.authenticate('google-invitation', {
       session: false,
       failureRedirect: '/login',
