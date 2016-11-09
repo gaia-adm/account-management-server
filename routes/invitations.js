@@ -155,6 +155,7 @@ router.route('/return.google')
   .get(
       function (req) {
         console.log('BORIS invitations-156: ' + req.protocol + '://' + req.get('host') + req.originalUrl);
+          next();
       },
     passport.authenticate('google-invitation', {
       session: false,
