@@ -111,7 +111,7 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
 passport.use('google-invitation', new GoogleStrategy({
     clientID: config.get('authentication.googleStrategy.clientId'),
     clientSecret: config.get('authentication.googleStrategy.clientSecret'),
-    callbackURL: 'https://' + process.env.CLIENT_HOST + ':' + process.env.CLIENT_PORT + '/acmc/api/invitations/return.google',
+    callbackURL: 'https://' + process.env.DOMAIN + ':444/acms/api/invitations/return.google',
     passReqToCallback: true
   },
   function(req, accessToken, refreshToken, profile, next) {
