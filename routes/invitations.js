@@ -106,10 +106,10 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
 
       return acceptInvitation.then(function(results) {
         if(!results) {
-          onsole.info('BORIS invitations 109: invitation not found');
+          console.info('BORIS invitations 109: invitation not found');
           return Promise.reject('no results');
         }
-        onsole.info('BORIS invitations 109: invitation found, returning user ' + user.id);
+        console.info('BORIS invitations 109: invitation found, returning user ' + user.id);
         return Promise.resolve(user);
       });
     });
