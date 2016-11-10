@@ -5,10 +5,10 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 ARG PROXY_URL
-ENV http_proxy $PROXY_URL
-ENV https_proxy $PROXY_URL
-RUN npm config set proxy $PROXY_URL
-RUN npm config set https-proxy $PROXY_URL
+#ENV http_proxy $PROXY_URL
+#ENV https_proxy $PROXY_URL
+#RUN npm config set proxy $PROXY_URL
+#RUN npm config set https-proxy $PROXY_URL
 # RUN npm config set registry http://registry.npmjs.org/
 RUN npm set progress=false
 
@@ -30,9 +30,9 @@ COPY ./.env.default /usr/src/app/.env
 
 EXPOSE 3000
 
-RUN npm config delete proxy
-RUN npm config delete https-proxy
-RUN unset http_proxy
-RUN unset https_proxy
+#RUN npm config delete proxy
+#RUN npm config delete https-proxy
+#RUN unset http_proxy
+#RUN unset https_proxy
 
 CMD [ "node", "./bin/www" ]

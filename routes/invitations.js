@@ -21,7 +21,6 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
 
   //get the id by which to find the invite
   let invitationUuid = req.query.state;
-  console.info('BORIS invitations 24: ' + invitationUuid);
   let invitedEmail, invitedAccount, invitedRoleIDs;
 
   //look up the invite
@@ -41,21 +40,15 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
     invitedEmail    = accountInvitation.get('email');
     invitedAccount  = accountInvitation.get('account_id');
     invitedRoleIDs  = accountInvitation.get('invited_role_ids');
-    console.info('BORIS invitations 44: ' + invitedEmail);
-    console.info('BORIS invitations 45: ' + invitedAccount);
-    console.info('BORIS invitations 46: ' + invitedRoleIDs);
 
     if(!profile || !profile.emails || _.find(profile.emails, {value: invitedEmail}) === undefined) {
-      console.info('BORIS invitations 49: ' + CONSTANTS.INVITATION_UNMATCHING_EMAIL);
       return Promise.reject(CONSTANTS.INVITATION_UNMATCHING_EMAIL);
     }
 
-    console.info('BORIS invitations 53: GOOD - email is valid');
     return Promise.resolve(invitedEmail);
   });
 
   let findOrCreateUser = validEmail.then(function(invitedEmail) {
-    console.info('BORIS invitations 58: looking for user');
     return UserEmail.where('email', invitedEmail).fetch({withRelated: 'user'})
       .then(function(userEmail) {
         if(!userEmail) return User.createUser({
@@ -68,7 +61,6 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
   });
 
   let assignAccountRoles = findOrCreateUser.then(function(user) {
-    console.info('BORIS invitations 71: User found ' + JSON.stringify(user));
     return db.transaction(function(trx) {
 
       //remove from invitedRoleIDs and roles on this account that the user has already accepted
@@ -100,16 +92,13 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
       });
 
       let acceptInvitation = accountRole.then(function() {
-        console.info('BORIS invitations 103: looking for invitation');
         return AccountInvitations.where({'uuid':invitationUuid}).save({date_accepted: db.knex.fn.now()},{transacting: trx, require: true, patch: true});
       });
 
       return acceptInvitation.then(function(results) {
         if(!results) {
-          console.info('BORIS invitations 109: invitation not found');
           return Promise.reject('no results');
         }
-        console.info('BORIS invitations 109: invitation found, returning user ' + user.id);
         return Promise.resolve(user);
       });
     });
@@ -121,22 +110,17 @@ const validateInvitation =  function(req, accessToken, refreshToken, profile, ne
 passport.use('google-invitation', new GoogleStrategy({
     clientID: config.get('authentication.googleStrategy.clientId'),
     clientSecret: config.get('authentication.googleStrategy.clientSecret'),
-    //callbackURL: 'https://' + process.env.DOMAIN + ':444/acms/api/invitations/return.google',
-        callbackURL: 'http://localhost:3000/acms/api/invitations/return.google',
+    callbackURL: 'https://' + process.env.CLIENT_HOST + '/acmc/api/invitations/return.google',
     passReqToCallback: true
   },
   function(req, accessToken, refreshToken, profile, next) {
-    console.log('BORIS invitations-118: ' + req.protocol + '://' + req.get('host') + req.originalUrl);
-    console.log('BORIS invitations-119: token '+accessToken);
     validateInvitation(req, accessToken, refreshToken, profile, next)
       .then(function (result) {
         console.info('invitation validated');
-        console.log('BORIS invitations-134: invitation validated');
         return next(null, result);
       })
       .catch(function (error) {
         console.info('invitation not validated');
-        console.log('BORIS invitations-139: ' + JSON.stringify(error));
         if (_.isString(error)) {
           var e = new Error(error);
           e.status = 400;
@@ -149,17 +133,14 @@ passport.use('google-invitation', new GoogleStrategy({
 
 /* Single Invitation */
 router.param('invitation_uuid', function(req, res, next, invitation_uuid) {
-  console.log('BORIS invitations-152: ' + req.protocol + '://' + req.get('host') + req.originalUrl);
   AccountInvitations
     .where({uuid: req.params.invitation_uuid})
     .fetch()
     .then(function(invitation) {
       if(!invitation) {
-        console.log('BORIS invitations-158: invitation '+invitation+'NOT validated');
         return next(ERRORS.INVITATION_DOES_NOT_EXIST);
       }
       req.invitation = invitation;
-      console.log('BORIS invitations-162: invitation found'+invitation);
       next();
     }).catch(function() {
       return next(new Error('Could not retrieve invitation'));
@@ -177,12 +158,10 @@ router.route('/return.google')
       if(err) {
         let message = err;
         let status  = err.status;
-        console.info('BORIS invitations-180: '+JSON.stringify(message));
         return res.render('invitation-validation', {message, status});
       }
     },
     function(req, res) {
-      console.info('BORIS invitations-185: ALL FINE');
       return res.render('invitation-validation', {
         message: 'Invitation successfully accepted',
         status: 200}
@@ -194,7 +173,6 @@ router.route('/:invitation_uuid')
   .get(
     function(req, res, next) {
       let invitation = _.pick(req.invitation.serialize(), ['uuid', 'email']);
-      console.info('BORIS invitations-197: invitation found - '+invitation);
       return res.status(200).json(invitation);
     }
   )
