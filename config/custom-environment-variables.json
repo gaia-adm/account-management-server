@@ -2,7 +2,8 @@
   "authentication": {
     "googleStrategy": {
       "clientId": "GOOGLE_CLIENT_ID",
-      "clientSecret": "GOOGLE_CLIENT_PASSWORD"
+      "clientSecret": "GOOGLE_CLIENT_PASSWORD",
+      "invitationCallbackURL": "INVITATION_CALLBACK_URL"
     }
   }
 }

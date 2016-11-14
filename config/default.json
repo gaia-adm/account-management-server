@@ -9,7 +9,7 @@
       "clientId": "foo",
       "clientSecret": "boo",
       "callbackURL": "http://localhost:3000/acmc/auth/google/return",
-      "invitationCallbackURL": "http://localhost:3000/acms/api/invitations/return.google"
+      "invitationCallbackURL": "https://localhost/acmc/api/invitations/return.google"
     }
   },
   "db": {

@@ -43,6 +43,7 @@ ExecStart=/bin/bash -a -c '/usr/bin/docker run  \
 -e BACKEND_PORT=3000  \
 -e CLIENT_HOST=acmc.${DOMAIN}  \
 -e CLIENT_PORT=443  \
+-e INVITATION_CALLBACK_URL=${INVITATION_CALLBACK_URL} \
 -e INVITATION_EMAIL_FROM=${MAILGUN_ACCOUNT}  \
 -e SMTP_HOST=smtp.mailgun.org  \
 -e SMTP_USERNAME=${MAILGUN_ACCOUNT}  \
