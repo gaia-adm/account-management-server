@@ -2,8 +2,8 @@ exports.seed = function(knex, Promise) {
   // Deletes predefined users
   return Promise.all([
       knex('users').where('id','IN', [1,2,3,4,5]).del(),
-      knex('xref_user_emails').where('email','IN',['alexei.ledenev@hpe.com', 'alexei.led@gmail.com']),
-      knex('xref_user_emails').where('email','IN',['gaiaadmservice@gmail.com']),
+      knex('xref_user_emails').where('email','IN',['alexei.ledenev@hpe.com', 'alexei.led@gmail.com']).del(),
+      knex('xref_user_emails').where('email','IN',['gaiaadmservice@gmail.com']).del(),
 //      knex('xref_user_emails').where('email','IN',['richard.plotkin@toptal.com', 'richardjplotkin@gmail.com','richard@richardplotkin.com','emilykplotkin@gmail.com']),
     ])
     .then(function () {
