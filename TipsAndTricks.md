@@ -16,3 +16,5 @@ There are 2 files to debug or print details:
  - https://acmc.${DOMAIN}/acmc/api/invitations/return.google
  - https://localhost/acmc/api/invitations/return.google - **_for Vagrant only_**
  
+#### Re-seed the database
+ - predefined users will be re-created when executing seed:run --production. During this process their assignment to any account will be removed. So do not assign them to any account, if needed create a additional (temporary or not) user and assign it to the account. 
