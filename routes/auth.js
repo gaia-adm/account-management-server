@@ -123,7 +123,7 @@ router.post('/google/token',
 router.get('/gaia.logout', function (req, res) {
     res.clearCookie('gaia.token', {
         httpOnly: true,
-        domain: '.' + req.hostname
+        domain: '.' + process.env.DOMAIN
     });
     res.json({success: true});
 });
