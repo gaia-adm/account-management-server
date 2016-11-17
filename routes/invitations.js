@@ -138,6 +138,7 @@ router.param('invitation_uuid', function(req, res, next, invitation_uuid) {
     .fetch()
     .then(function(invitation) {
       if(!invitation) {
+        console.error('Bad invitation was attempted to be used: ' + req.params.invitation_uuid);
         return next(ERRORS.INVITATION_DOES_NOT_EXIST);
       }
       req.invitation = invitation;
@@ -156,12 +157,14 @@ router.route('/return.google')
     }),
     function(err, req, res, next) {
       if(err) {
+        console.error('Error in invitation acceptance process: ' + err.message + '(status ' + err.status + ')');
         let message = err;
         let status  = err.status;
         return res.render('invitation-validation', {message, status});
       }
     },
     function(req, res) {
+      console.log('Invitation successfully accepted: ' + req.params.invitation_uuid);
       return res.render('invitation-validation', {
         message: 'Invitation successfully accepted',
         status: 200}

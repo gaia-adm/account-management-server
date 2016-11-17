@@ -79,6 +79,7 @@ const userCanEditAccountByAccountId = function(user, accountId, next) {
     .then(function(account) {
       //serialize
       if(!account) {
+        console.error('User ' +user.id +' is not authorized to edit account!')
         return next(ERRORS.NOT_AUTHORIZED);
       }
       account = account.serialize({shallow: false});
