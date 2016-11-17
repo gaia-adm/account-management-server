@@ -98,6 +98,13 @@ passport.use('google-id-token', new GoogleTokenStrategy({
         return validateUserCallback(null, null, null, profile, done);
     })
 );
+//serialization is needed due to using passport.authenticate with custom callback for better logging
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+passport.deserializeUser(function (user, done) {
+    done(null, user);
+});
 
 /* GET users listing. */
 router.get('/google',
@@ -113,12 +120,43 @@ router.get('/google/return',
         passReqToCallback: true,
     }), resolveUserJWT);
 
-router.post('/google/token',
-    passport.authenticate('google-id-token', {
-        session: false,
-        passReqToCallback: true
-    }),
-    resolveUserJWT);
+
+/*
+ ========================= ORIGINAL WITH NO LOGGING =========================
+ router.post('/google/token',
+ passport.authenticate('google-id-token', {
+ session: false,
+ passReqToCallback: true
+ }),
+ resolveUserJWT);
+ ========================= END OF ORIGINAL =========================
+ */
+
+
+router.post('/google/token', function (req, res, next) {
+    passport.authenticate('google-id-token', {session: false, passReqToCallback: true}, function (err, user, info) {
+        if (err) {
+            //Examples: user authenticated by Google but not found in ACM DB or any other exception thrown
+            console.error('Error occurred when trying to authenticate: ' + err.message + ' (status ' + err.status +')');
+            return next(err);
+        }
+        if (!user) {
+            //Examples: no connection to google OR bad client id OR 'google' GoogleStrategy is not defined well
+            console.error('Authentication failure: ' + JSON.stringify(info));
+            return res.redirect('/login');
+        }
+        req.logIn(user, function (err) {
+            console.log('Logging in as ' + user.id);
+            if (err) {
+                console.error('Failed to login as ' + user.id + ' due to ' + JSON.stringify(err));
+                return next(err);
+            }
+            console.log('Logged in as ' + user.id);
+            next();
+        });
+    })(req, res, next)
+}, resolveUserJWT);
+
 
 router.get('/gaia.logout', function (req, res) {
     res.clearCookie('gaia.token', {
