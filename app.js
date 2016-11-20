@@ -21,6 +21,7 @@ const routes = require('./routes/index');
 const auth = require('./routes/auth').router;
 const users = require('./routes/users');
 const accounts = require('./routes/accounts');
+const mock = require('./routes/mock');
 const invitations = require('./routes/invitations').router;
 
 const User = require('./models/users');
@@ -53,7 +54,7 @@ passport.use(new JwtStrategy({
         }
       }]})
       .then(function(user) {
-        // console.info('user authenticated', user.serialize());
+       // console.info('user authenticated', JSON.stringify(user));
         done(null, user.serialize());
       }).catch(function(err) {
         // console.info('jwt auth error', err);
@@ -105,6 +106,7 @@ app.use('/acms/', routes);
 app.use('/acms/auth', auth);
 app.use('/acms/api/users', users);
 app.use('/acms/api/accounts', accounts);
+app.use('/acms/mock', mock);
 app.use('/acms/api/invitations', invitations);
 
 // catch 404 and forward to error handler
@@ -127,7 +129,7 @@ app.use(function(err, req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'test' ||
-  app.get('env') === 'development') {
+  app.get('env') === 'development' || app.get('env') === 'mock') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.json({

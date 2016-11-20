@@ -14,12 +14,28 @@ const roles = new ConnectRoles({
   }
 });
 
+/**
+ * Function must return boolean
+ * SQLite stores boolean type as a number (1/0) that's why it is not enough just return req.user.isSupervisor - it can be a number instead boolean
+ */
 roles.use('superuser', function(req) {
-  return req.user.isSuperuser;
+  if(req.user.isSuperuser){
+    return true;
+  } else {
+    return false;
+  }
 });
 
+/**
+ * Function must return boolean
+ * SQLite stores boolean type as a number (1/0) that's why it is not enough just return (req.user.isAdmin || req.user.isSuperuser) - it can be a number instead boolean
+ */
 roles.use('siteAdmin', function(req) {
-  return req.user.isAdmin || req.user.isSuperuser;
+  if(req.user.isAdmin || req.user.isSuperuser){
+    return true;
+  } else {
+    return false;
+  }
 });
 
 roles.use('self', function(req) {

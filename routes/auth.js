@@ -65,7 +65,12 @@ const resolveUserJWT = function (req, res) {
     let token = jwt.sign({id: user.id}, config.get('secret'), {
         expiresIn: '365d'
     });
-    let myDomain = req.get('Host');
+
+    console.info('HOST: ' + req.get('Host'));
+    console.info('HOSTNAME' + req.hostname);
+
+//    let myDomain = req.get('Host');
+    let myDomain = req.hostname;
     if (req.get('Host').startsWith('acmc')) {
         myDomain = myDomain.substring(4); //set cookie for entire Gaia environment domain instead of acmc subdomain
     }

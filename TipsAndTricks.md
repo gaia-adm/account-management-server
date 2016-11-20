@@ -16,9 +16,10 @@ There are 2 files to debug or print details:
  - https://acmc.${DOMAIN}/acmc/api/invitations/return.google
  - https://localhost/acmc/api/invitations/return.google - **_for Vagrant only_**
  
-#### Re-seed the database
- - predefined users will be re-created when executing seed:run --production. During this process their assignment to any account will be removed. So do not assign them to any account, if needed create a additional (temporary or not) user and assign it to the account. 
- 
+#### Database
+ - **Re-seed**: predefined users will be re-created when executing seed:run --production. During this process their assignment to any account will be removed. So do not assign them to any account, if needed create a additional (temporary or not) user and assign it to the account. 
+ - Following can be set for debugging knex: ```export DEBUG=knex:*```
+
 #### LIMITATIONS:
 - **Vagrant only**: since our vagrant (.local) domain is not publicly accessible as Google Oauth2 requires and we don't use "localhost" as a hostname in order to handle cookies properly, invitation process is broken on vagrant. Once you receive "The site cannot be reached" error for the URL ending with /return.google, you need to replace localhost with acmc.gaia-local.skydns.local manually in the browser and refresh the page
 
@@ -71,3 +72,11 @@ There are 2 files to debug or print details:
   - **Server**: ```invitation validated``` and ```Invitation successfully accepted```
   - **Client**: HTTP-200 with 'Invitation successfully accepted' for /api/invitations/return.google
   
+#### Mock configuration
+- ACM server can be used as a mock for testing integrated services (STS) and troubleshooting
+- Mock must have internet (Google) access to run
+- Mock uses SQLite 3 in-file database
+- Knex migrate and seed **must** run with with --env=mock
+- The server **must** be started with mockuserid environment variable that represents the superuser id
+- **Limitations**:
+  - not supported: user update, any activity related to invitations

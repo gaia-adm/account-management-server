@@ -53,6 +53,21 @@ module.exports = {
     }
   },
 
+  mock: {
+    client: 'sqlite3',
+    connection: {
+      filename: 'sqllite_for_testing'
+    },
+    useNullAsDefault: true,
+    migrations: {
+      directory: './mock_migrations',
+      tableName: 'knex_migrations'
+    },
+    seeds: {
+      directory: './seeds/mock'
+    }
+  },
+
   reset: {
     client: 'postgresql',
     connection: {

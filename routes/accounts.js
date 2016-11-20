@@ -28,23 +28,41 @@ const sendInvitation = function(req, uuid, recipient) {
 };
 
 const userWithRoles = function(qb) {
-  qb.column([
-    'users.firstName',
-    'users.lastName',
-    'users.id',
-    db.knex.raw('array_agg(roles.id) AS role_ids, array_agg(roles.name) AS role_names')
-  ]);
+  if(db.knex.client.config.client=='sqlite3'){
+    qb.column([
+      'users.firstName',
+      'users.lastName',
+      'users.id',
+      db.knex.raw('group_concat(roles.id) AS role_ids, group_concat(roles.name) AS role_names')
+    ]);
+  } else {
+    qb.column([
+      'users.firstName',
+      'users.lastName',
+      'users.id',
+      db.knex.raw('array_agg(roles.id) AS role_ids, array_agg(roles.name) AS role_names')
+    ]);
+  }
   qb.innerJoin('roles','xref_user_account_roles.role_id','roles.id');
   qb.groupBy('users.id','users.firstName','users.lastName','xref_user_account_roles.user_id','xref_user_account_roles.account_id');
 };
 
 const userWithRolesAndEmails = function(qb) {
-  qb.column([
-    'users.firstName',
-    'users.lastName',
-    'users.id',
-    db.knex.raw('array_agg(roles.id) AS role_ids, array_agg(roles.name) AS role_names, array_agg(xref_user_emails.email) AS emails')
-  ]);
+  if(db.knex.client.config.client=='sqlite3'){
+    qb.column([
+      'users.firstName',
+      'users.lastName',
+      'users.id',
+      db.knex.raw('group_concat(roles.id) AS role_ids, group_concat(roles.name) AS role_names, group_concat(xref_user_emails.email) AS emails')
+    ]);
+  } else {
+    qb.column([
+      'users.firstName',
+      'users.lastName',
+      'users.id',
+      db.knex.raw('array_agg(roles.id) AS role_ids, array_agg(roles.name) AS role_names, array_agg(xref_user_emails.email) AS emails')
+    ]);
+  }
   qb.innerJoin('roles','xref_user_account_roles.role_id','roles.id');
   qb.innerJoin('xref_user_emails','xref_user_emails.user_id','users.id');
   qb.groupBy('users.id','users.firstName','users.lastName','xref_user_account_roles.user_id','xref_user_account_roles.account_id');
@@ -102,6 +120,16 @@ router.route('/')
           .orderBy('name')
           .query()
           .then(function (accounts) {
+            //SQLite 3 support - enabled must be boolean but it stored as 0/1 in SQLite3
+            for(var i=0; i< accounts.length; i++)
+            {
+              if (accounts[i].enabled == 1) {
+                accounts[i].enabled = true;
+              }
+              if (accounts[i].enabled == 0) {
+                accounts[i].enabled = false;
+              }
+            }
             res.json(accounts);
           })
       } else {
