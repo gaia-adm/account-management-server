@@ -56,7 +56,7 @@ module.exports = {
   mock: {
     client: 'sqlite3',
     connection: {
-      filename: 'sqllite_for_testing'
+      filename: 'sqlite_for_testing'
     },
     useNullAsDefault: true,
     migrations: {

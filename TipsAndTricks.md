@@ -76,7 +76,7 @@ There are 2 files to debug or print details:
 - ACM server can be used as a mock for testing integrated services (STS) and troubleshooting
 - Mock must have internet (Google) access to run
 - Mock uses SQLite 3 in-file database
-- Knex migrate and seed **must** run with with --env=mock
-- The server **must** be started with mockuserid environment variable that represents the superuser id
+- Knex migrate and seed **must** run with with --env=mock; seed also **must** run after ```export mockuserid=2474``` (or any other value)
+- The server **must** be started with mockuserid environment variable that represents the superuser id - **the same** as used during seed
 - **Limitations**:
   - not supported: user update, any activity related to invitations

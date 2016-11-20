@@ -8,7 +8,7 @@ try {
         knex = knex({
             client: 'sqlite3',
             connection: {
-                filename: 'sqllite_for_testing'
+                filename: 'sqlite_for_testing'
             },
             useNullAsDefault: true,
             searchPath: 'knex,mock',
