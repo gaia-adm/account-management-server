@@ -78,5 +78,9 @@ There are 2 files to debug or print details:
 - Mock uses SQLite 3 in-file database
 - Knex migrate and seed **must** run with with --env=mock; seed also **must** run after ```export mockuserid=2474``` (or any other value)
 - The server **must** be started with mockuserid environment variable that represents the superuser id - **the same** as used during seed
+- DB preparation command examples: 
+  - create db and schema: ```~/.npm-global/bin/knex migrate:latest --env=mock```
+  - populate db with data: ```export mockuserid=1234 && ~/.npm-global/bin/knex seed:run --env=mock```
+  - assign user to account: ```insert into xref_user_account_roles values(1234,2,1); commit;``` assuming that userId is 1234, accountId is 2, roleId is 1 (Account Administrator)
 - **Limitations**:
   - not supported: user update, any activity related to invitations

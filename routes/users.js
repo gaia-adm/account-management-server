@@ -101,6 +101,18 @@ router.route('/:id')
                         return next(null, false);
                     }
                     user = user.serialize({shallow: false});
+                    //Postgre returns array of roles but SQLite returns comma-separated list as a string
+                    //We must have it as array in order to display in UI nicely when multiple roles are set for the user
+                    if(user.accounts != null && user.accounts.length > 0){
+                        for(let i = 0; i < user.accounts.length; i++) {
+                            if(typeof user.accounts[i].role_ids === 'string'){
+                                user.accounts[i].role_ids = user.accounts[i].role_ids.split(',');
+                            }
+                            if(typeof user.accounts[i].role_names === 'string'){
+                                user.accounts[i].role_names = user.accounts[i].role_names.split(',');
+                            }
+                        }
+                    }
                     user.emails = user.emails.map(obj => obj.email).sort();
                     res.json(user);
                 })
