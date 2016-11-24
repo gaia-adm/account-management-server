@@ -107,6 +107,10 @@ router.route('/:id')
                         for(let i = 0; i < user.accounts.length; i++) {
                             if(typeof user.accounts[i].role_ids === 'string'){
                                 user.accounts[i].role_ids = user.accounts[i].role_ids.split(',');
+                                //role_ids must be numbers as returned by Postgre in order to unify client-side handling
+                                for(let j=0; j<user.accounts[i].role_ids.length; j++){
+                                    user.accounts[i].role_ids[j] = parseInt(user.accounts[i].role_ids[j]);
+                                }
                             }
                             if(typeof user.accounts[i].role_names === 'string'){
                                 user.accounts[i].role_names = user.accounts[i].role_names.split(',');
