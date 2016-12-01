@@ -9,7 +9,7 @@ exports.up = function(knex, Promise) {
       table.boolean('isSuperuser').defaultTo(false);
     })
     .createTableIfNotExists('accounts', function(table) {
-      table.increments('id').primary();
+      table.bigIncrements('id').primary();
       table.string('name').unique().notNullable();
       table.string('description');
       table.binary('icon');
@@ -25,7 +25,7 @@ exports.up = function(knex, Promise) {
     })
     .createTableIfNotExists('xref_user_account_roles', function(table) {
       table.integer('user_id').references('id').inTable('users').onDelete('CASCADE');
-      table.integer('account_id').references('id').inTable('accounts').onDelete('CASCADE');
+      table.bigint('account_id').references('id').inTable('accounts').onDelete('CASCADE');
       table.integer('role_id').references('id').inTable('roles').onDelete('CASCADE');
     })
 };
